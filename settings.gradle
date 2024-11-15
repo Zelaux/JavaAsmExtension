@@ -1,0 +1,10 @@
+//file:noinspection GroovyAssignabilityCheck
+rootProject.name = 'JavaAsmLib'
+
+include("transformation:core")
+
+include "util:visitor"
+include "util:method-stuff"
+include "util:loader"
+include "util:compile"
+

@@ -1,0 +1,4 @@
+//file:noinspection DependencyNotationArgument
+dependencies{
+    testImplementation(aproj("util:loader"))
+}

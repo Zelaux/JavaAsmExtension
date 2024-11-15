@@ -1,0 +1,112 @@
+//file:noinspection GroovyAssignabilityCheck
+def localRoot = project
+subprojects{
+    apply plugin: 'maven-publish'
+    group = 'com.github.Zelaux.JavaAsmLib'
+    version = '1.0'
+    ext.localRoot = localRoot
+    ext.aproj = { String name ->
+        if(localRoot == rootProject) return project(":"+name)
+        Project proj=localRoot
+        for(final def part in name.split(':')){
+            proj=proj.childProjects[part]
+        }
+        return proj
+    }
+    repositories{
+        mavenCentral()
+    }
+
+    if(subprojects.size() == 0){
+        apply plugin: "java-library"
+        //noinspection GroovyAssignabilityCheck
+        sourceSets.main.java.srcDirs = ["src/", "$buildDir/generated/sources/annotationProcessor/java/main", "generated/"]
+        //noinspection GroovyAssignabilityCheck
+        sourceSets.test.java.srcDirs = ["test"]
+        //noinspection GroovyAssignabilityCheck
+        sourceSets.test.resources.srcDirs = ["test/resources"]
+        dependencies{
+            testImplementation platform('org.junit:junit-bom:5.9.1')
+            testImplementation 'org.junit.jupiter:junit-jupiter'
+
+
+            def asmVersion = '9.5'
+            implementation "org.ow2.asm:asm-util:$asmVersion"
+            implementation "org.ow2.asm:asm-tree:$asmVersion"
+            implementation "org.ow2.asm:asm-analysis:$asmVersion"
+
+            compileOnly "org.jetbrains:annotations:24.0.1"
+
+
+            compileOnly 'org.projectlombok:lombok:1.18.32'
+            annotationProcessor 'org.projectlombok:lombok:1.18.32'
+        }
+
+        test{
+            useJUnitPlatform()
+        }
+    }
+}
+ext.asmLibRoot = project
+
+String calculateName(Project proj){
+    //    Set<Project> projects = System.getenv("JITPACK") != "true" ? rootProject.subprojects - project(":test") : rootProject.subprojects
+    if(proj.parent == asmLibRoot) return proj.name;
+    return calculateName(proj.parent) + "-" + proj.name
+}
+
+
+void configure1(Project project){
+    if(project.subprojects.size() != 0) return;
+//    println project
+    //noinspection GroovyAssignabilityCheck
+    println(project.group + ":" + calculateName(project) + ":" + project.version)
+    configure(project){
+        ext.asmRoot = asmLibRoot
+
+        compileJava{
+            options.fork = true
+            options.incremental = true
+        }
+
+        java{
+            withJavadocJar()
+            withSourcesJar()
+        }
+        def selfProject = project
+        publishing{
+            publications{
+                maven(MavenPublication){
+                    from components.java
+                    group = selfProject.group
+                    version = selfProject.version
+                    artifactId = calculateName(selfProject)
+                }
+            }
+        }
+
+    }
+}
+
+subprojects{ configure1(project) }
+
+void eachChild(Set<Project> set){
+    configure(set){
+        dependencies{
+            if(subprojects.size() == 0){
+                compileOnly "org.jetbrains:annotations:24.0.1"
+                testImplementation 'junit:junit:4.13.1'
+                testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.8.2")
+            }
+        }
+        //        sourceSets
+        eachChild(subprojects)
+    }
+}
+
+
+eachChild(subprojects)
+afterEvaluate{
+
+    //    tasks.getByName('publishToMavenLocal').execute()
+}

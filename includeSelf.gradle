@@ -1,0 +1,44 @@
+import java.util.regex.Matcher
+
+def transformIncludeString(String includeString){
+    // Удаляем лишние пробелы и скобки
+    includeString = includeString.trim().replaceAll(/^include\s*$?\s*['"]?/, '').replaceAll(/['"]?\s*$?$/, '')
+    return includeString
+}
+
+@SuppressWarnings('GroovyAssignabilityCheck')
+private void includeWithDir(String name, File root){
+    include(name)
+    ProjectDescriptor p = project(name)
+    p.projectDir = root
+}
+
+private void includeSelf0(File root){
+
+    def settingsFile = new File(root, "settings.gradle")
+
+
+    def fileContent = settingsFile.text
+
+    def rootProjectName = (fileContent =~ /rootProject\.name\s*=\s*['"]([^'"]+)['"]/)[0][1]
+
+    def transformedIncludes = (fileContent =~ /include\s*\(?\s*['"]?([^'"\s]+)['"]\s*\)?\s*/)
+            .collect{ transformIncludeString(it[1]) }
+
+
+    if(true){
+        def name = ":" + rootProjectName
+        includeWithDir(name, root)
+    }
+    for(String subProject in transformedIncludes){
+        String projectName = ":" + rootProjectName + ":" + subProject
+        includeWithDir(projectName, new File(root, subProject.replace(':', '/')))
+    }
+}
+
+ext{
+    includeSelf = { File root ->
+        includeSelf0(root)
+        ext.includeSelf = null
+    }
+}
