@@ -42,4 +42,15 @@ public class ConstantInsn{
         return new IntInsnNode(BIPUSH, value);
     }
 
+    public static void visitBoolean(MethodVisitor v, boolean value){
+        v.visitInsn(value ? ICONST_1 : ICONST_0);
+    }
+
+    public static void visitString(MethodVisitor v, String value){
+        v.visitLdcInsn(value);
+    }
+
+    public static void visitChar(MethodVisitor v, char aChar){
+        v.visitLdcInsn(aChar);
+    }
 }
