@@ -6,18 +6,16 @@ import org.objectweb.asm.*;
 import org.objectweb.asm.tree.*;
 
 import java.io.*;
-import java.lang.reflect.*;
-import java.util.*;
 import java.util.function.*;
 
 public class MethodStuff{
     // Сохранение байткода метода в файл
     @SneakyThrows
-    public static byte[] saveMethodBytecode(Class<?> clazz, String methodName, String methodDesc) {
-        final int api = Main.OPCODE_VERSION;
-        ClassReader cr = new ClassReader(clazz.getName());
-        ClassNode rootClass = new ClassNode(api);
-        cr.accept(rootClass, 0);
+    public static byte[] saveMethodBytecode(Class<?> clazz, String methodName, String methodDesc){
+        final int api = Opcodes.ASM9;
+        ClassNode rootClass = classNode(clazz, api);
+        MethodNode rootMethodNode = extractMethod(rootClass, methodName, methodDesc);
+
         ClassNode generatedClass = new ClassNode(api);
         rootClass.accept(generatedClass);
         generatedClass.visit(generatedClass.version, generatedClass.access,
@@ -25,11 +23,6 @@ public class MethodStuff{
                              null,
                              "java/lang/Object",
                              null);
-        MethodNode rootMethodNode = rootClass.methods
-            .stream()
-            .filter(it -> it.name.equals(methodName) && it.desc.equals(methodDesc))
-            .findFirst()
-            .orElseThrow((Supplier<Throwable>)() -> new NoSuchMethodException(methodName + methodDesc));
         generatedClass.methods.clear();
         generatedClass.methods.add(rootMethodNode);
         {
@@ -39,6 +32,21 @@ public class MethodStuff{
         }
     }
 
+    @NotNull
+    public static ClassNode classNode(Class<?> clazz, int api) throws IOException{
+        ClassReader cr = new ClassReader(clazz.getName());
+        ClassNode rootClass = new ClassNode(api);
+        cr.accept(rootClass, 0);
+        return rootClass;
+    }
+
+    public static MethodNode extractMethod(ClassNode rootClass, String methodName, String methodDesc) throws Throwable{
+        return rootClass.methods
+            .stream()
+            .filter(it -> it.name.equals(methodName) && it.desc.equals(methodDesc))
+            .findFirst()
+            .orElseThrow((Supplier<Throwable>)() -> new NoSuchMethodException(methodName + methodDesc));
+    }
 
 
     public static byte[] mergeSavedMethods(String testClass, String testMethod, String descriptor, byte[]... loadedBytecodes){
@@ -70,27 +78,28 @@ public class MethodStuff{
             if(i + 1 < methods.length){
                 AbstractInsnNode last = instructions.get(total - 1);
                 switch(last.getOpcode()){
-                    case Opcodes.RETURN,
-                        Opcodes.IRETURN,
-                        Opcodes.LRETURN,
-                        Opcodes.DRETURN,
-                        Opcodes.FRETURN,
-                        Opcodes.ARETURN -> total--;
+                    case Opcodes.RETURN:
+                    case Opcodes.IRETURN:
+                    case Opcodes.LRETURN:
+                    case Opcodes.DRETURN:
+                    case Opcodes.FRETURN:
+                    case Opcodes.ARETURN:
+                        total--;
                 }
             }
             for(int j = 0; j < total; j++){
                 AbstractInsnNode node = instructions.get(j);
                 if(i + 1 < methods.length){
                     int opcode = node.getOpcode();
+
                     switch(opcode){
-                        case Opcodes.RETURN,
-                            Opcodes.IRETURN,
-                            Opcodes.LRETURN,
-                            Opcodes.DRETURN,
-                            Opcodes.FRETURN,
-                            Opcodes.ARETURN -> {//TODO add goto
+                        case Opcodes.RETURN:
+                        case Opcodes.IRETURN:
+                        case Opcodes.LRETURN:
+                        case Opcodes.DRETURN:
+                        case Opcodes.FRETURN:
+                        case Opcodes.ARETURN:
                             continue;
-                        }
                     }
                 }
                 generatedMethod.instructions.add(node);
