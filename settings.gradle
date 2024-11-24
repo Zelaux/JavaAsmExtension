@@ -3,6 +3,9 @@ rootProject.name = 'JavaAsmLib'
 
 include("transformation:core")
 
+include "annotations"
+include "annotations:lombok-plugin-starter"
+
 include "util:visitor"
 include "util:method-stuff"
 include "util:loader"
