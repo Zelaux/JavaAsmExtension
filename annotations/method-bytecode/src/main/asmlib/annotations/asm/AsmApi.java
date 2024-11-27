@@ -4,7 +4,7 @@ import lombok.*;
 import org.objectweb.asm.*;
 
 public class AsmApi{
-    private MethodVisitor delegate;
+    private final MethodVisitor delegate;
 
     @SneakyThrows
     public AsmApi(){

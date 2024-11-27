@@ -8,7 +8,6 @@ import java.util.*;
 
 public class FileExtensions{
     public static final String CLASS = "class";
-    public static final String NUL = null;
     private static final Map<String, String> interner = new HashMap<>();
 
     static{

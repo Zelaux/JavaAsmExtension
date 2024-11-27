@@ -12,7 +12,7 @@ dependencies{
     }
     compileOnly gradleApi()
 }
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
     options.debug = true // Включает отладочную информацию
     options.compilerArgs << '-g' // Явно указывает на включение отладочной информации
     // Явно указывает на включение отладочной информации

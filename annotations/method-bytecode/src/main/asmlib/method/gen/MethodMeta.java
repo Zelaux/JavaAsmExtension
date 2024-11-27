@@ -123,8 +123,7 @@ public class MethodMeta{
         for(int i = 0; i < args.length; i++){
             Class<?> expectedType = parameters[i].getType();
             Object o = args[i];
-            if(!expectedType.isPrimitive() || !(o instanceof Number)) continue;
-            Number num = (Number)o;
+            if(!expectedType.isPrimitive() || !(o instanceof Number num)) continue;
             Class<?> actualType = o.getClass();
             boolean isFloat = actualType == Float.class || actualType == Double.class;
             if(!isFloat){

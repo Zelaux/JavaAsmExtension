@@ -61,6 +61,7 @@ public class Opens{
     }
 
     public static void addOpensForLombok(ClassLoader loader){
+        //noinspection rawtypes
         Class cModule;
         try{
             cModule = findClass("java.lang.Module", loader);

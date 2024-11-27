@@ -15,9 +15,10 @@ static void generateCodeMapping(File input, File output){
         Matcher matcher = pattern.matcher(line)
 
         if(matcher.find() || true){
-            String fieldName = matcher.group(1) // Название поля
-            String fieldValue = matcher.group(2) // Значение поля
-            String comment = matcher.group(3) // Текст комментария
+            String fieldName = matcher.group(1)
+            //noinspection GroovyUnusedAssignment
+            String fieldValue = matcher.group(2)
+            String comment = matcher.group(3)
 
             if(comment != "-"){
                 currentList = methodToOpcodes.computeIfAbsent(comment, it -> new ArrayList<>())

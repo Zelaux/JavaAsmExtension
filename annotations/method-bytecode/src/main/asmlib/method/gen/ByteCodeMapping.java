@@ -7,7 +7,7 @@ import org.objectweb.asm.*;
 import java.lang.reflect.*;
 
 public class ByteCodeMapping{
-    private static MethodMeta[] map = new MethodMeta[256];
+    private static final MethodMeta[] map = new MethodMeta[256];
 
     @SneakyThrows
     public static MethodMeta getMethodMeta(@MagicConstant(valuesFromClass = Opcodes.class) int opcode){
