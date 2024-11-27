@@ -4,6 +4,7 @@ import org.objectweb.asm.*;
 
 import static org.objectweb.asm.Opcodes.*;
 
+@SuppressWarnings("unused")
 public class PrintInsn{
     public static void visitPrintDouble(MethodVisitor visitor){
         visitor.visitInsn(DUP2);

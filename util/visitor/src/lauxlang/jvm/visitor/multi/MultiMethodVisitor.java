@@ -12,6 +12,7 @@ public class MultiMethodVisitor extends MethodVisitor{
     public MultiMethodVisitor(int api, MethodVisitor... delegates){
         super(api);
         this.delegates = delegates;
+        //noinspection unchecked
         labelToLabel = new Map[delegates.length];
         for(int i = 0; i < labelToLabel.length; i++){
             labelToLabel[i]=new HashMap<>();
@@ -136,6 +137,7 @@ public class MultiMethodVisitor extends MethodVisitor{
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void visitMethodInsn(int opcode, String owner, String name, String descriptor){
         for(MethodVisitor visitor : delegates){

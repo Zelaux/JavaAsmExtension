@@ -106,6 +106,7 @@ public class MethodMeta{
     }
 
     @SneakyThrows
+    @SuppressWarnings("unused")
     public Object parseType(int index, String string, InstructionContext context){
         return parseType(method.getParameters()[index].getType(), context, string);
     }

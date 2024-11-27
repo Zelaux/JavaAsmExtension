@@ -2,6 +2,7 @@ package asmlib.transform;
 
 import org.jetbrains.annotations.*;
 
+@SuppressWarnings("unused")
 public abstract class AbstractClassFileTransformer implements ClassFileTransformer{
     public int roundLeft;
     public int roundIndex;

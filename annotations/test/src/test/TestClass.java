@@ -7,6 +7,7 @@ import static org.objectweb.asm.Opcodes.*;
 //@Getter
 public class TestClass{
     //    @Setter
+    @SuppressWarnings("unused")
     String value;
 
     public static void main(String[] args){

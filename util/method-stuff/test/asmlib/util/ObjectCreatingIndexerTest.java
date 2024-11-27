@@ -21,6 +21,7 @@ public class ObjectCreatingIndexerTest{
 
     }
 
+    @SuppressWarnings("unused")
     void methodToTest() throws URISyntaxException, FileNotFoundException{
         byte[] bytes = new byte[0];
         String string = new String(bytes);

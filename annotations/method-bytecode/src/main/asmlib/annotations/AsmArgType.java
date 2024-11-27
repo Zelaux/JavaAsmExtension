@@ -2,6 +2,7 @@ package asmlib.annotations;
 
 import org.objectweb.asm.*;
 
+@SuppressWarnings("unused")
 public enum AsmArgType{
     trySolve(Object.class),
     i(int.class),

@@ -3,6 +3,7 @@ package lauxlang.jvm.visitor.multi;
 import org.objectweb.asm.*;
 
 public class MultiAnnotationVisitor extends AnnotationVisitor{
+    @SuppressWarnings("CanBeFinal")
     public AnnotationVisitor[] visitors;
 
     public MultiAnnotationVisitor(int api, AnnotationVisitor[] visitors){

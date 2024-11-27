@@ -2,6 +2,7 @@ package lauxlang.jvm.visitor.multi;
 
 import org.objectweb.asm.*;
 
+@SuppressWarnings("unused")
 public class MultiClassVisitor extends ClassVisitor{
     private final ClassVisitor[] visitors;
 

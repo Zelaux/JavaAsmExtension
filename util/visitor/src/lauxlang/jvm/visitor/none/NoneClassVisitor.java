@@ -2,6 +2,7 @@ package lauxlang.jvm.visitor.none;
 
 import org.objectweb.asm.*;
 
+@SuppressWarnings("unused")
 public class NoneClassVisitor extends ClassVisitor{
     public NoneClassVisitor(int api){
         super(api);

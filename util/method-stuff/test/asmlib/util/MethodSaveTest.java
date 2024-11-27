@@ -10,6 +10,7 @@ import java.lang.reflect.*;
 import static asmlib.util.MethodStuff.*;
 
 public class MethodSaveTest{
+    @SuppressWarnings("SameParameterValue")
     private static void assertOutput(String expected, ThrowingRunnable runnable) throws Throwable{
         PrintStream prevOut = System.out;
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -21,7 +22,7 @@ public class MethodSaveTest{
 
     @SneakyThrows
     @Test
-    void test(){
+    public void test(){
         byte[] bytes1 = saveMethodBytecode(MyClass.class, "anotherMethod", "(II)V");
         byte[] bytes2 = saveMethodBytecode(MyClass.class, "anotherMethod2", "(II)V");
         byte[] bytes3 = saveMethodBytecode(MyClass.class, "anotherMethod3", "(II)I");
@@ -39,6 +40,7 @@ public class MethodSaveTest{
         );
     }
 
+    @SuppressWarnings("unused")
     public static class MyClass{
         // Другой метод для демонстрации выборочного сохранения
         public static void anotherMethod(int a, int b){

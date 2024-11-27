@@ -4,17 +4,18 @@ import org.jetbrains.annotations.*;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.*;
 
+@SuppressWarnings("SameReturnValue")
 public interface ClassFileTransformer extends Comparable<ClassFileTransformer>{
     @Override
     default int compareTo(@NotNull ClassFileTransformer o){
         return Integer.compare(priority(), o.priority());
     }
 
-    boolean shouldRead(@NotNull String className);
+    boolean shouldRead(@SuppressWarnings("unused") @NotNull String className);
     default ClassNode transformClass(ClassNode classNode){
         return classNode;
     }
-    boolean shouldWrite(@NotNull String className);
+    boolean shouldWrite(@SuppressWarnings("unused") @NotNull String className);
 
 
     default int priority(){

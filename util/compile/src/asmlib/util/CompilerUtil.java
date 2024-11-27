@@ -6,6 +6,7 @@ import org.objectweb.asm.tree.*;
 
 import static org.objectweb.asm.Opcodes.*;
 
+@SuppressWarnings("unused")
 public class CompilerUtil{
 
     public static void swap2(MethodVisitor visitor){

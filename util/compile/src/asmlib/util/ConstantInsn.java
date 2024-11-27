@@ -5,6 +5,7 @@ import org.objectweb.asm.tree.*;
 
 import static org.objectweb.asm.Opcodes.*;
 
+@SuppressWarnings("unused")
 public class ConstantInsn{
     public static void visitInt(MethodVisitor visitor, int idx){
         if(idx == -1){

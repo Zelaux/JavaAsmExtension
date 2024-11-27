@@ -11,6 +11,7 @@ public class ByteCodeClassLoader extends ClassLoader{
     @Nullable
     String[] classNames;
 
+    @SuppressWarnings("unused")
     public ByteCodeClassLoader(ClassLoader parent, byte[]... byteCodes){
         super(parent);
         this.byteCodes = byteCodes;

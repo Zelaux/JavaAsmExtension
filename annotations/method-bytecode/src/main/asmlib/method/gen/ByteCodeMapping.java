@@ -34,6 +34,7 @@ public class ByteCodeMapping{
         return ByteCodeMappingInternal.name(opcode);
     }
 
+    @SuppressWarnings("unused")
     public static int code(String name){
         return ByteCodeMappingInternal.code(name);
     }

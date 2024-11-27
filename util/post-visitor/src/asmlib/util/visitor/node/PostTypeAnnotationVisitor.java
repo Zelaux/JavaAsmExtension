@@ -4,6 +4,7 @@ import org.jetbrains.annotations.*;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.*;
 
+@SuppressWarnings("unused")
 public class PostTypeAnnotationVisitor extends TypeAnnotationNode{
     public static final ConsumeTypeAnnotationNode[] EMPTY_ARRAY = new ConsumeTypeAnnotationNode[0];
     @NotNull

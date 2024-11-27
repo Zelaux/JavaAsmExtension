@@ -2,9 +2,7 @@ package asmlib.annotations;
 
 import com.sun.tools.javac.processing.*;
 import lombok.*;
-import lombok.bytecode.*;
 import org.jetbrains.annotations.*;
-import org.objectweb.asm.*;
 
 import javax.annotation.processing.*;
 import javax.lang.model.element.*;
@@ -16,14 +14,11 @@ import java.net.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.jar.*;
-import java.util.regex.*;
 
 import static asmlib.annotations.Opens.addOpensForLombok;
 
 @SupportedAnnotationTypes("*")
 public class LombokPluginStarter extends AbstractProcessor{
-    public static final String lombokShadowJarSavePrefix = "$";
-    public static final String lombokShadowJarSavePostfix = "$";
 
     static{
         addOpensForLombok(LombokPluginStarter.class);
@@ -31,12 +26,6 @@ public class LombokPluginStarter extends AbstractProcessor{
 
     static{
         initSelf(LombokPluginStarter.class);
-    }
-
-    private static <T> T get(Class<? extends ClassLoader> clazz, Object this$, String name) throws NoSuchFieldException, IllegalAccessException{
-        Field field = clazz.getDeclaredField(name);
-        field.setAccessible(true);
-        return (T)field.get(this$);
     }
 
     @NotNull
@@ -66,7 +55,7 @@ public class LombokPluginStarter extends AbstractProcessor{
         ClassLoader shadowClassLoader = (ClassLoader)Permit.getMethod(launchMain, "getShadowClassLoader").invoke(null);
         Class<? extends ClassLoader> clazz = shadowClassLoader.getClass();
 
-        List<File> override = (List<File>)Permit.getField(clazz, "override").get(shadowClassLoader);
+//        List<File> override = (List<File>)Permit.getField(clazz, "override").get(shadowClassLoader);
 //        File SELF_BASE_FILE = (File)Permit.getField(clazz, "SELF_BASE_FILE").get(shadowClassLoader);
         Set<ClassLoader> prependedParentLoaders = (Set<ClassLoader>)Permit.getField(clazz, "prependedParentLoaders").get(shadowClassLoader);
         Map<String, Boolean> jarLocCache = (Map<String, Boolean>)Permit.getField(clazz, "jarLocCache").get(shadowClassLoader);
@@ -82,7 +71,7 @@ public class LombokPluginStarter extends AbstractProcessor{
             URL jarFileUrl = jarFileFile.toURI().toURL();
             jarLocCache.put(jarFileUrl + "::lombok", true);
 
-            MyURLClassLoader loader = new MyURLClassLoader(anchorClass, jarFileUrl, shadowClassLoader);
+            MyURLClassLoader loader = new MyURLClassLoader(jarFileUrl, shadowClassLoader);
             addOpensForLombok(loader);
             JarFile jarFile = new JarFile(jarFileFile);
             Enumeration<JarEntry> entries = jarFile.entries();
@@ -122,7 +111,7 @@ public class LombokPluginStarter extends AbstractProcessor{
         }
     }
 
-    private Object tryGetProxyDelegateToField(Class<?> delegateClass, Object instance){
+    private Object tryGetProxyDelegateToField(Object instance){
         try{
             InvocationHandler handler = Proxy.getInvocationHandler(instance);
             return getField(handler.getClass(), "val$delegateTo").get(handler);
@@ -139,6 +128,7 @@ public class LombokPluginStarter extends AbstractProcessor{
         }
     }
 
+    @SuppressWarnings("unused")
     public JavacProcessingEnvironment getJavacProcessingEnvironment(Object procEnv){
         addOpensForLombok(LombokPluginStarter.class);
         if(procEnv instanceof JavacProcessingEnvironment) return (JavacProcessingEnvironment)procEnv;
@@ -146,7 +136,7 @@ public class LombokPluginStarter extends AbstractProcessor{
         // try to find a "delegate" field in the object, and use this to try to obtain a JavacProcessingEnvironment
         for(Class<?> procEnvClass = procEnv.getClass(); procEnvClass != null; procEnvClass = procEnvClass.getSuperclass()){
             Object delegate = tryGetDelegateField(procEnvClass, procEnv);
-            if(delegate == null) delegate = tryGetProxyDelegateToField(procEnvClass, procEnv);
+            if(delegate == null) delegate = tryGetProxyDelegateToField(procEnv);
             if(delegate == null) delegate = tryGetProcessingEnvField(procEnvClass, procEnv);
 
             if(delegate != null) return getJavacProcessingEnvironment(delegate);
@@ -174,7 +164,7 @@ public class LombokPluginStarter extends AbstractProcessor{
         private final ClassLoader shadowClassLoader;
         private final ClassLoader parentLoader;
 
-        public MyURLClassLoader(Class<?> anchorClass, URL jarFileUrl, ClassLoader shadowClassLoader){
+        public MyURLClassLoader(URL jarFileUrl, ClassLoader shadowClassLoader){
             super( new URL[]{jarFileUrl}, null);
             arrayList = new ArrayList<>();
             this.shadowClassLoader = shadowClassLoader;
@@ -191,7 +181,7 @@ public class LombokPluginStarter extends AbstractProcessor{
             if(arrayList.contains(name)) throw new ClassNotFoundException(name);
             arrayList.add(name);
             try{
-                Class<?> aClass = null;
+                Class<?> aClass;
                 try{
                     aClass = super.loadClass(name);
                 }catch(ClassNotFoundException e){

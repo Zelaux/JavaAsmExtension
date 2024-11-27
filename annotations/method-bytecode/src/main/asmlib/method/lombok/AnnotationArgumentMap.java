@@ -16,6 +16,7 @@ public class AnnotationArgumentMap{
         this(node.values);
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public AnnotationArgumentMap values(List<Object> values){
         map.clear();
         for(int i = 0; i < values.size(); i += 2){
@@ -25,6 +26,7 @@ public class AnnotationArgumentMap{
         return this;
     }
 
+    @SuppressWarnings("unused")
     public Set<String> keys(){
         return map.keySet();
     }

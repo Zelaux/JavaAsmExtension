@@ -1,13 +1,15 @@
 package lauxlang.jvm.visitor;
 
-import org.objectweb.asm.*;
 import org.objectweb.asm.util.*;
 
 import java.io.*;
 
-public class MyTextifier extends Textifier{
-    public MyTextifier(){
-        super(Opcodes.ASM9);
+@SuppressWarnings("unused")
+public class ReusableASMifier extends ASMifier{
+
+
+    public ReusableASMifier(int api, String visitorVariableName, int annotationVisitorId){
+        super(api, visitorVariableName, annotationVisitorId);
     }
 
     @Override

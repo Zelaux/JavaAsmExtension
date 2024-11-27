@@ -1,6 +1,7 @@
 package asmlib.annotations;
 
 import java.io.*;
+@SuppressWarnings("ALL")
 public class Parent {
     boolean first;
     static final Object staticObj = OutputStream.class;

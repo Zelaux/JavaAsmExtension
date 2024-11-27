@@ -11,15 +11,16 @@ public class PostAnnotationVisitor extends AnnotationNode{
     @Nullable
     private AnnotationVisitor finishVisitor;
 
+    @SuppressWarnings("unused")
     public PostAnnotationVisitor(int api, String descriptor){
         super(api, descriptor);
     }
-
+    @SuppressWarnings("unused")
     public PostAnnotationVisitor consumers(ConsumeAnnotationNode... consumers){
         this.consumers = consumers;
         return this;
     }
-
+    @SuppressWarnings("unused")
     public PostAnnotationVisitor finishVisitor(AnnotationVisitor finishVisitor){
         this.finishVisitor = finishVisitor;
         return this;

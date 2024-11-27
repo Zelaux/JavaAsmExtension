@@ -18,17 +18,6 @@ class AddMethodByteCodeVisitor extends ClassVisitor{
     public AddMethodByteCodeVisitor(ClassWriter writer){
         super(ASM9, writer);
     }
-
-    private static Map<String, Object> values(AnnotationNode node){
-
-        HashMap<String, Object> map = new HashMap<>();
-        List<Object> list = node.values;
-        for(int i = 0; i < list.size(); i += 2){
-            map.put((String)list.get(i), list.get(i + 1));
-        }
-        return map;
-    }
-
     @Override
     public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions){
         if((access & accessMask) == 0) return super.visitMethod(access, name, descriptor, signature, exceptions);
@@ -44,12 +33,13 @@ class AddMethodByteCodeVisitor extends ClassVisitor{
                     int opcode = asmItem.get("value");
                     //noinspection MagicConstant
                     MethodMeta meta = ByteCodeMapping.getMethodMeta(opcode);
-                    String opcodeName = ByteCodeMapping.name(opcode);
+//                    String opcodeName = ByteCodeMapping.name(opcode);
                     Object[] args;
                     if(asmItem.has(STR_ARGS_PARAM_NAME)){
                         List<String> o = asmItem.get(STR_ARGS_PARAM_NAME);
                         args = meta.transformStringArgs(o, context);
                     }else if(asmItem.has("args")){
+                        //TODO add support for asmlib.annotations.Arg
                         throw null;
                     }else{
                         args = new Object[0];

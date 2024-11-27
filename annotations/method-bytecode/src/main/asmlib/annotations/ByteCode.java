@@ -6,5 +6,6 @@ import java.lang.annotation.*;
 @Target(value = ElementType.METHOD)
 public @interface ByteCode{
 
+    @SuppressWarnings("unused")
     Inst[] value();
 }

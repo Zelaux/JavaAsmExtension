@@ -10,10 +10,11 @@ import java.util.*;
 
 import static org.objectweb.asm.Opcodes.*;
 
-public class GetObjectCreationMethodVisitor extends MethodVisitor{
+public class GetObjectCreationMethodVisitor extends MethodVisitor {
 
 
     public static final String INIT = "<init>";
+    @SuppressWarnings("CanBeFinal")
     public static boolean throwException = true;
     public final List<ObjectCreationRange> rootRanges = new ArrayList<>();
     public final MethodNode methodNode;
@@ -22,43 +23,46 @@ public class GetObjectCreationMethodVisitor extends MethodVisitor{
     @Nullable
     private ObjectCreationRange current = null;
 
-    public GetObjectCreationMethodVisitor(int api){
+    public GetObjectCreationMethodVisitor(int api) {
         super(api);
         this.mv = (methodNode = new MethodNode());
     }
 
-    public GetObjectCreationMethodVisitor(int api, MethodNode infoNode){
+    @SuppressWarnings("unused")
+    public GetObjectCreationMethodVisitor(int api, MethodNode infoNode) {
         super(api, infoNode);
         methodNode = infoNode;
     }
 
     @Override
-    public void visitMethodInsn(int opcode, String owner, String name, String descriptor, boolean isInterface){
+    public void visitMethodInsn(int opcode, String owner, String name, String descriptor, boolean isInterface) {
         int i = curIdx();
         super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
-        if(opcode == INVOKESPECIAL && name.equals(INIT)){
-            if(current == null){
-                if(methodNode.name != null && methodNode.name.equals(INIT)) return;//Call super in constructor
-                if(throwException) throw new RuntimeException("Has no opened object creation\n" + owner + "." + name + descriptor + "\n");
+        if (opcode == INVOKESPECIAL && name.equals(INIT)) {
+            if (current == null) {
+                if (methodNode.name != null && methodNode.name.equals(INIT)) return;//Call super in constructor
+                if (throwException)
+                    throw new RuntimeException("Has no opened object creation\n" + owner + "." + name + descriptor + "\n");
                 return;
             }
-            if(!current.type.equals(owner)){
-                if(throwException) throw new RuntimeException(String.format("Types '%s' and '%s' did not match", current.type, opcode));
+            if (!current.type.equals(owner)) {
+                if (throwException)
+                    throw new RuntimeException(String.format("Types '%s' and '%s' did not match", current.type, opcode));
                 return;
             }
             current.endIndex = i;
             current = current.parent;
-            if(current == null){
+            if (current == null) {
                 ranges = rootRanges;
-            }else{
+            } else {
                 ranges = current.innerObjects;
             }
         }
     }
 
     @Override
-    public void visitTypeInsn(int opcode, String type){
-        if(opcode == NEW){
+    public void visitTypeInsn(int opcode, String type) {
+        if (opcode == NEW) {
             ranges.add(current = new ObjectCreationRange(current, type, curIdx()));
             allRanges.add(current);
             ranges = current.innerObjects;
@@ -66,21 +70,21 @@ public class GetObjectCreationMethodVisitor extends MethodVisitor{
         super.visitTypeInsn(opcode, type);
     }
 
-    private int curIdx(){
+    private int curIdx() {
         return methodNode.instructions.size();
     }
 
     @RequiredArgsConstructor
     @FieldDefaults(level = AccessLevel.PUBLIC)
-    public static class ObjectCreationRange{
+    public static class ObjectCreationRange {
         @Nullable
         final ObjectCreationRange parent;
         @NotNull
         final String type;
-        @NotNull
         final int startIndex;
         @NotNull
-        List<ObjectCreationRange> innerObjects = new ArrayList<>();
+        final List<ObjectCreationRange> innerObjects = new ArrayList<>();
+        @SuppressWarnings("unused")
         int endIndex = -1;
 
     }
