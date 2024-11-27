@@ -34,7 +34,7 @@ public class NodeUtil {
     }
 
     @SneakyThrows
-    public static MethodNode methodNode(Method method, @AsmVersion int api) throws IOException {
+    public static MethodNode methodNode(Method method, @AsmVersion int api) {
         return extractMethod(classNode(method.getDeclaringClass(), api), method.getName(), Type.getMethodDescriptor(method));
     }
 
