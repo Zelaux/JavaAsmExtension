@@ -1,7 +1,5 @@
-package asmlib.util;
+package asmlib.analytics;
 
-import lombok.*;
-import lombok.experimental.*;
 import org.jetbrains.annotations.*;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.*;
@@ -10,7 +8,7 @@ import java.util.*;
 
 import static org.objectweb.asm.Opcodes.*;
 
-public class GetObjectCreationMethodVisitor extends MethodVisitor {
+public class ObjectCreationRangeAnalyzerVisitor extends MethodVisitor {
 
 
     public static final String INIT = "<init>";
@@ -23,15 +21,18 @@ public class GetObjectCreationMethodVisitor extends MethodVisitor {
     @Nullable
     private ObjectCreationRange current = null;
 
-    public GetObjectCreationMethodVisitor(int api) {
-        super(api);
-        this.mv = (methodNode = new MethodNode());
+    public ObjectCreationRangeAnalyzerVisitor(int api) {
+        this(api, new MethodNode());
     }
 
     @SuppressWarnings("unused")
-    public GetObjectCreationMethodVisitor(int api, MethodNode infoNode) {
+    public ObjectCreationRangeAnalyzerVisitor(int api, MethodNode infoNode) {
         super(api, infoNode);
         methodNode = infoNode;
+    }
+    @NotNull
+    public ObjectCreationRanges toResult() {
+        return new ObjectCreationRanges(rootRanges, allRanges);
     }
 
     @Override
@@ -74,18 +75,4 @@ public class GetObjectCreationMethodVisitor extends MethodVisitor {
         return methodNode.instructions.size();
     }
 
-    @RequiredArgsConstructor
-    @FieldDefaults(level = AccessLevel.PUBLIC)
-    public static class ObjectCreationRange {
-        @Nullable
-        final ObjectCreationRange parent;
-        @NotNull
-        final String type;
-        final int startIndex;
-        @NotNull
-        final List<ObjectCreationRange> innerObjects = new ArrayList<>();
-        @SuppressWarnings("unused")
-        int endIndex = -1;
-
-    }
 }

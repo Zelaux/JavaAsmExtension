@@ -1,0 +1,5 @@
+//file:noinspection DependencyNotationArgument
+dependencies{
+    testImplementation(aproj("util:method"))
+    testImplementation(aproj("util:node"))
+}

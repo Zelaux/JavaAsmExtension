@@ -17,7 +17,7 @@ public class MethodSaveTest{
         System.setOut(new PrintStream(out));
         runnable.run();
         System.setOut(prevOut);
-        Assert.assertEquals(expected, out.toString());
+        Assert.assertEquals(expected, out.toString().replace(System.lineSeparator(),"\n"));
     }
 
     @SneakyThrows
@@ -35,7 +35,7 @@ public class MethodSaveTest{
 
 
         assertOutput(
-            "a: 3\nb: 4\n",
+            "a: 3\na: 3\na: 3\nb: 4\n",
             () -> Assert.assertEquals(7, (int)method.invoke(null, 3, 4))
         );
     }

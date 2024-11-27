@@ -5,13 +5,15 @@ include "dev-annotations"
 
 include("transformation:core")
 
+include "analytics:object-creation"
+
 include "annotations"
 include "annotations:lombok-plugin-starter"
 include "annotations:method-bytecode"
 include "annotations:test"
 
 include "util:visitor"
-include "util:method-stuff"
+include "util:method"
 include "util:loader"
 include "util:compile"
 include "util:post-visitor"
