@@ -59,13 +59,13 @@ ext.asmLibRoot = project
 
 String calculateName(Project proj){
     //    Set<Project> projects = System.getenv("JITPACK") != "true" ? rootProject.subprojects - project(":test") : rootProject.subprojects
-    if(proj.parent == asmLibRoot) return proj.name;
+    if(proj.parent == asmLibRoot) return proj.name
     return calculateName(proj.parent) + "-" + proj.name
 }
 
 
 void configure1(Project project){
-    if(project.subprojects.size() != 0) return;
+    if(project.subprojects.size() != 0) return
 //    println project
     //noinspection GroovyAssignabilityCheck
     println(project.group + ":" + calculateName(project) + ":" + project.version)

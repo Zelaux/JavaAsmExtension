@@ -30,9 +30,9 @@ tasks.register('createSCL'){
 
             def newPath = relativize.toString()
             if(newPath.endsWith(".class")){
-                newPath = "SCL.lombok\\" + newPath.substring(0, newPath.length() - ".class".length()) + ".SCL.lombok";
+                newPath = "SCL.lombok\\" + newPath.substring(0, newPath.length() - ".class".length()) + ".SCL.lombok"
             }else{
-                newPath = "SCL.lombok\\" + newPath;
+                newPath = "SCL.lombok\\" + newPath
             }
             println(newPath)
 
