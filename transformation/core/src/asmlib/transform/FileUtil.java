@@ -1,14 +1,10 @@
 package asmlib.transform;
 
-import org.intellij.lang.annotations.*;
-
 import java.io.*;
 import java.nio.file.*;
 import java.nio.file.attribute.*;
-import java.util.*;
 
 public class FileUtil{
-
 
 
     public static void copyDirectory(File sourceFile, File destinationFile) throws IOException{
