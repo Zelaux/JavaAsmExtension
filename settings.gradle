@@ -1,5 +1,7 @@
 //file:noinspection GroovyAssignabilityCheck
 rootProject.name = 'JavaAsmLib'
+//needs for EntryPoint
+include "dev-annotations"
 
 include("transformation:core")
 

@@ -1,5 +1,6 @@
 package asmlib.transform;
 
+import asmlib.dev.annotations.EntryPoint;
 import asmlib.transform.file.*;
 
 import java.io.*;

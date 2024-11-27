@@ -17,6 +17,7 @@ subprojects{
         mavenCentral()
     }
 
+    ext.devAnnotations = ext.aproj("dev-annotations");
     if(subprojects.size() == 0){
 
         tasks.withType(JavaCompile).configureEach {
@@ -41,6 +42,7 @@ subprojects{
             implementation "org.ow2.asm:asm-tree:$asmVersion"
             implementation "org.ow2.asm:asm-analysis:$asmVersion"
 
+            compileOnly devAnnotations
             compileOnly "org.jetbrains:annotations:24.0.1"
 
 
