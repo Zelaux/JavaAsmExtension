@@ -1,5 +1,9 @@
 compiler/
+**/ignore/**
+**/ignore**
 
+### Gradle ###
+local.properties
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
@@ -11,6 +15,8 @@ build/
 .idea/jarRepositories.xml
 .idea/compiler.xml
 .idea/libraries/
+.idea/uiDesigner.xml
+.idea/vcs.xml
 *.iws
 *.iml
 *.ipr
