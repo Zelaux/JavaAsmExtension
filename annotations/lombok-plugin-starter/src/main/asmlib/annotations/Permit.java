@@ -1,13 +1,16 @@
 package asmlib.annotations;
 
-import lombok.permit.Permit.*;
-import sun.misc.*;
+import org.jetbrains.annotations.NotNull;
+import sun.misc.Unsafe;
 
 import java.lang.reflect.*;
 
+@SuppressWarnings("unused")
 public class Permit {
     private static final long ACCESSIBLE_OVERRIDE_FIELD_OFFSET;
     private static final IllegalAccessException INIT_ERROR;
+    @SuppressWarnings("DataFlowIssue")
+    @NotNull
     private static final Unsafe UNSAFE = (Unsafe)reflectiveStaticFieldAccess(Unsafe.class, "theUnsafe");
 
     static {
@@ -16,10 +19,9 @@ public class Permit {
         try {
             g = getOverrideFieldOffset();
             ex = null;
-        } catch (Throwable var4) {
-            Object var10000 = null;
+        } catch (Throwable throwable) {
             g = -1L;
-            ex = var4;
+            ex = throwable;
         }
 
         ACCESSIBLE_OVERRIDE_FIELD_OFFSET = g;
@@ -68,7 +70,7 @@ public class Permit {
         }
     }
 
-    public static Method getMethod(Class<?> c, String mName, Class<?>... parameterTypes) throws NoSuchMethodException {
+    public static Method getMethod(@NotNull Class<?> c, String mName, Class<?>... parameterTypes) throws NoSuchMethodException {
         Method m = null;
         Class<?> oc = c;
 
@@ -84,7 +86,7 @@ public class Permit {
         if (m == null) {
             throw new NoSuchMethodException(oc.getName() + " :: " + mName + "(args)");
         } else {
-            return (Method)setAccessible(m);
+            return setAccessible(m);
         }
     }
 
@@ -96,7 +98,7 @@ public class Permit {
         }
     }
 
-    public static Field getField(Class<?> c, String fName) throws NoSuchFieldException {
+    public static Field getField(@NotNull Class<?> c, String fName) throws NoSuchFieldException {
         Field f = null;
         Class<?> oc = c;
 
@@ -112,7 +114,7 @@ public class Permit {
         if (f == null) {
             throw new NoSuchFieldException(oc.getName() + " :: " + fName);
         } else {
-            return (Field)setAccessible(f);
+            return setAccessible(f);
         }
     }
 
@@ -133,14 +135,15 @@ public class Permit {
     }
 
     public static <T> Constructor<T> getConstructor(Class<T> c, Class<?>... parameterTypes) throws NoSuchMethodException {
-        return (Constructor)setAccessible(c.getDeclaredConstructor(parameterTypes));
+        return setAccessible(c.getDeclaredConstructor(parameterTypes));
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static Object reflectiveStaticFieldAccess(Class<?> c, String fName) {
         try {
             Field f = c.getDeclaredField(fName);
             f.setAccessible(true);
-            return f.get((Object)null);
+            return f.get(null);
         } catch (Exception var3) {
             return null;
         }
@@ -163,130 +166,92 @@ public class Permit {
     }
 
     public static Object invoke(Method m, Object receiver, Object... args) throws IllegalAccessException, InvocationTargetException {
-        return invoke((Throwable)null, m, receiver, args);
+        return invoke(null, m, receiver, args);
     }
 
     public static Object invoke(Throwable initError, Method m, Object receiver, Object... args) throws IllegalAccessException, InvocationTargetException {
         try {
             return m.invoke(receiver, args);
-        } catch (IllegalAccessException var5) {
-            handleReflectionDebug(var5, initError);
-            throw var5;
-        } catch (RuntimeException var6) {
-            handleReflectionDebug(var6, initError);
-            throw var6;
-        } catch (Error var7) {
-            handleReflectionDebug(var7, initError);
-            throw var7;
+        } catch (IllegalAccessException | RuntimeException | Error e) {
+            handleReflectionDebug(e, initError);
+            throw e;
         }
     }
 
     public static Object invokeSneaky(Method m, Object receiver, Object... args) {
-        return invokeSneaky((Throwable)null, m, receiver, args);
+        return invokeSneaky(null, m, receiver, args);
     }
 
     public static Object invokeSneaky(Throwable initError, Method m, Object receiver, Object... args) {
         try {
             return m.invoke(receiver, args);
-        } catch (NoClassDefFoundError var5) {
-            handleReflectionDebug(var5, initError);
+        } catch (NoClassDefFoundError | NullPointerException e) {
+            handleReflectionDebug(e, initError);
             return null;
-        } catch (NullPointerException var6) {
-            handleReflectionDebug(var6, initError);
-            return null;
-        } catch (IllegalAccessException var7) {
-            handleReflectionDebug(var7, initError);
-            throw sneakyThrow(var7);
-        } catch (InvocationTargetException var8) {
-            throw sneakyThrow(var8.getCause());
-        } catch (RuntimeException var9) {
-            handleReflectionDebug(var9, initError);
-            throw var9;
-        } catch (Error var10) {
-            handleReflectionDebug(var10, initError);
-            throw var10;
+
+        } catch (IllegalAccessException e) {
+            handleReflectionDebug(e, initError);
+            throw sneakyThrow(e);
+
+        } catch (InvocationTargetException e) {
+            throw sneakyThrow(e.getCause());
+
+        } catch (RuntimeException | Error e) {
+            handleReflectionDebug(e, initError);
+            throw e;
         }
     }
 
     public static <T> T newInstance(Constructor<T> c, Object... args) throws IllegalAccessException, InvocationTargetException, InstantiationException {
-        return newInstance((Throwable)null, c, args);
+        return newInstance(null, c, args);
     }
 
     public static <T> T newInstance(Throwable initError, Constructor<T> c, Object... args) throws IllegalAccessException, InvocationTargetException, InstantiationException {
         try {
             return c.newInstance(args);
-        } catch (IllegalAccessException var4) {
-            handleReflectionDebug(var4, initError);
-            throw var4;
-        } catch (InstantiationException var5) {
-            handleReflectionDebug(var5, initError);
-            throw var5;
-        } catch (RuntimeException var6) {
-            handleReflectionDebug(var6, initError);
-            throw var6;
-        } catch (Error var7) {
-            handleReflectionDebug(var7, initError);
-            throw var7;
+        } catch (IllegalAccessException | InstantiationException | RuntimeException | Error e) {
+            handleReflectionDebug(e, initError);
+            throw e;
         }
     }
 
     public static <T> T newInstanceSneaky(Constructor<T> c, Object... args) {
-        return newInstanceSneaky((Throwable)null, c, args);
+        return newInstanceSneaky(null, c, args);
     }
 
     public static <T> T newInstanceSneaky(Throwable initError, Constructor<T> c, Object... args) {
         try {
             return c.newInstance(args);
-        } catch (NoClassDefFoundError var4) {
-            handleReflectionDebug(var4, initError);
+        } catch (NoClassDefFoundError | NullPointerException e) {
+            handleReflectionDebug(e, initError);
             return null;
-        } catch (NullPointerException var5) {
-            handleReflectionDebug(var5, initError);
-            return null;
-        } catch (IllegalAccessException var6) {
-            handleReflectionDebug(var6, initError);
-            throw sneakyThrow(var6);
-        } catch (InstantiationException var7) {
-            handleReflectionDebug(var7, initError);
-            throw sneakyThrow(var7);
-        } catch (InvocationTargetException var8) {
-            throw sneakyThrow(var8.getCause());
-        } catch (RuntimeException var9) {
-            handleReflectionDebug(var9, initError);
-            throw var9;
-        } catch (Error var10) {
-            handleReflectionDebug(var10, initError);
-            throw var10;
+        } catch (IllegalAccessException | InstantiationException e) {
+            handleReflectionDebug(e, initError);
+            throw sneakyThrow(e);
+        } catch (InvocationTargetException e) {
+            throw sneakyThrow(e.getCause());
+        } catch (RuntimeException | Error e) {
+            handleReflectionDebug(e, initError);
+            throw e;
         }
     }
 
     public static <T> T get(Field f, Object receiver) throws IllegalAccessException {
         try {
+            //noinspection unchecked
             return (T)f.get(receiver);
-        } catch (IllegalAccessException var3) {
-            handleReflectionDebug(var3, (Throwable)null);
-            throw var3;
-        } catch (RuntimeException var4) {
-            handleReflectionDebug(var4, (Throwable)null);
-            throw var4;
-        } catch (Error var5) {
-            handleReflectionDebug(var5, (Throwable)null);
-            throw var5;
+        } catch (IllegalAccessException | RuntimeException | Error e) {
+            handleReflectionDebug(e, null);
+            throw e;
         }
     }
 
     public static void set(Field f, Object receiver, Object newValue) throws IllegalAccessException {
         try {
             f.set(receiver, newValue);
-        } catch (IllegalAccessException var4) {
-            handleReflectionDebug(var4, (Throwable)null);
-            throw var4;
-        } catch (RuntimeException var5) {
-            handleReflectionDebug(var5, (Throwable)null);
-            throw var5;
-        } catch (Error var6) {
-            handleReflectionDebug(var6, (Throwable)null);
-            throw var6;
+        } catch (IllegalAccessException | RuntimeException | Error e) {
+            handleReflectionDebug(e, null);
+            throw e;
         }
     }
 
@@ -305,7 +270,7 @@ public class Permit {
         if (t == null) {
             throw new NullPointerException("t");
         } else {
-            return (RuntimeException)sneakyThrow0(t);
+            return sneakyThrow0(t);
         }
     }
 

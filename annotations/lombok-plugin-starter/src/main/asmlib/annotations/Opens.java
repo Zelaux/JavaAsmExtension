@@ -11,7 +11,7 @@ public class Opens{
         try{
             Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
             theUnsafe.setAccessible(true);
-            return (Unsafe)theUnsafe.get((Object)null);
+            return (Unsafe)theUnsafe.get(null);
         }catch(Exception var1){
             return null;
         }
@@ -21,7 +21,7 @@ public class Opens{
         try{
             Class<?> cModuleLayer = findClass("java.lang.ModuleLayer", loader);
             Method mBoot = cModuleLayer.getDeclaredMethod("boot");
-            Object bootLayer = mBoot.invoke((Object)null);
+            Object bootLayer = mBoot.invoke(null);
             Class<?> cOptional = findClass("java.util.Optional", loader);
             Method mFindModule = cModuleLayer.getDeclaredMethod("findModule", String.class);
             Object oCompilerO = mFindModule.invoke(bootLayer, "jdk.compiler");
@@ -39,7 +39,7 @@ public class Opens{
     private static Object getOwnModule(){
         try{
 
-            Method m = Permit.getMethod(Class.class, "getModule", new Class[0]);
+            Method m = Permit.getMethod(Class.class, "getModule");
             return m.invoke(Opens.class);
         }catch(Exception var1){
             return null;
@@ -50,10 +50,8 @@ public class Opens{
     private static long getFirstFieldOffset(Unsafe unsafe){
         try{
             return unsafe.objectFieldOffset(Parent.class.getDeclaredField("first"));
-        }catch(NoSuchFieldException var2){
+        }catch(NoSuchFieldException | SecurityException var2){
             throw new RuntimeException(var2);
-        }catch(SecurityException var3){
-            throw new RuntimeException(var3);
         }
     }
 
@@ -76,17 +74,16 @@ public class Opens{
         String[] allPkgs = new String[]{"com.sun.tools.javac.code", "com.sun.tools.javac.comp", "com.sun.tools.javac.file", "com.sun.tools.javac.main", "com.sun.tools.javac.model", "com.sun.tools.javac.parser", "com.sun.tools.javac.processing", "com.sun.tools.javac.tree", "com.sun.tools.javac.util", "com.sun.tools.javac.jvm"};
 
         try{
+            //noinspection unchecked
             Method m = cModule.getDeclaredMethod("implAddOpens", String.class, cModule);
+            //noinspection DataFlowIssue
             long firstFieldOffset = getFirstFieldOffset(unsafe);
             unsafe.putBooleanVolatile(m, firstFieldOffset, true);
-            String[] var11 = allPkgs;
-            int var10 = allPkgs.length;
 
-            for(int var9 = 0; var9 < var10; ++var9){
-                String p = var11[var9];
+            for (String p : allPkgs) {
                 m.invoke(jdkCompilerModule, p, ownModule);
             }
-        }catch(Exception var13){
+        }catch(Exception ignored){
         }
     }
 }
