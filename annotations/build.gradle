@@ -50,7 +50,7 @@ void modifyDependency0(File unshadowedLombokJar){
             def oldName = localRoot.relativePath(file)
 
             // Получаем имя файла и расширение
-            if(!oldName.endsWith(".SCL.lombok")){
+            if(!oldName.endsWith(".SCL.lombok") || oldName.contains("org/objectweb/asm")){
                 //                        println("Delete: " + oldName)
                 //                        file.delete()
                 return

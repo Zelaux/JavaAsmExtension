@@ -6,10 +6,10 @@ subprojects{
     version = '1.0'
     ext.localRoot = localRoot
     ext.aproj = { String name ->
-        if(localRoot == rootProject) return project(":"+name)
-        Project proj=localRoot
+        if(localRoot == rootProject) return project(":" + name)
+        Project proj = localRoot
         for(final def part in name.split(':')){
-            proj=proj.childProjects[part]
+            proj = proj.childProjects[part]
         }
         return proj
     }
@@ -20,7 +20,7 @@ subprojects{
     ext.devAnnotations = ext.aproj("dev-annotations");
     if(subprojects.size() == 0){
 
-        tasks.withType(JavaCompile).configureEach {
+        tasks.withType(JavaCompile).configureEach{
             targetCompatibility = 17
             sourceCompatibility = 17
             options.fork = true
@@ -42,8 +42,9 @@ subprojects{
             implementation "org.ow2.asm:asm-tree:$asmVersion"
             implementation "org.ow2.asm:asm-analysis:$asmVersion"
 
-            compileOnly devAnnotations
+            if(project != devAnnotations) compileOnly devAnnotations
             compileOnly "org.jetbrains:annotations:24.0.1"
+            testCompileOnly "org.jetbrains:annotations:24.0.1"
 
 
             compileOnly 'org.projectlombok:lombok:1.18.32'
@@ -59,14 +60,14 @@ subprojects{
 }
 ext.asmLibRoot = project
 
-String calculateName(Project proj){
+String calculateName(Project proj) {
     //    Set<Project> projects = System.getenv("JITPACK") != "true" ? rootProject.subprojects - project(":test") : rootProject.subprojects
     if(proj.parent == asmLibRoot) return proj.name
     return calculateName(proj.parent) + "-" + proj.name
 }
 
 
-void configure1(Project project){
+void configure1(Project project) {
     if(project.subprojects.size() != 0) return
 //    println project
     //noinspection GroovyAssignabilityCheck
@@ -100,7 +101,7 @@ void configure1(Project project){
 
 subprojects{ configure1(project) }
 
-void eachChild(Set<Project> set){
+void eachChild(Set<Project> set) {
     configure(set){
         dependencies{
             if(subprojects.size() == 0){
