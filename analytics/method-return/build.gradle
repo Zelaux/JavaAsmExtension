@@ -1,0 +1,15 @@
+//file:noinspection DependencyNotationArgument
+
+dependencies{
+    api(aproj("analytics:object-creation"))
+
+    testImplementation(aproj("util:method"))
+    testImplementation(aproj("util:node"))
+    testImplementation(aproj("util:compile"))
+    testImplementation(aproj("util:visitor"))
+
+    testImplementation "com.github.javaparser:javaparser-symbol-solver-core:$jparcerVersion"
+
+
+//    api(aproj("util:visitor"))
+}
