@@ -9,7 +9,9 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 
 import javax.annotation.processing.*;
+import javax.lang.model.SourceVersion;
 import javax.lang.model.element.*;
+import javax.tools.Diagnostic;
 import javax.tools.Diagnostic.*;
 import java.io.*;
 import java.lang.reflect.*;
@@ -55,12 +57,19 @@ public abstract class LombokPluginStarter extends AbstractProcessor {
 
     @SneakyThrows
     private static void wait0() {
-        System.out.println("Sleep");
-        for (int i = 0; i < 5; i++) {
-            Thread.sleep(1000);
-            System.out.println(i);
+        String numberString = System.getenv().getOrDefault("lombok.plugin.debug_sleep", "0");
+        if (!numberString.matches("\\d")) {
+            System.err.println("WARNING: env property 'lombok.plugin.debug_sleep' must contain number >=0");
+            return;
         }
-        System.out.println("Sleep2");
+        int number = Integer.parseInt(numberString);
+        if (number <= 0) return;
+        System.out.println("Debug Sleep Start");
+        for (int i = 0; i < number; i++) {
+            Thread.sleep(1000);
+            System.out.printf("%d/%d %n", i,number);
+        }
+        System.out.println("Debug Sleep End");
     }
 
     @SuppressWarnings("unchecked")
@@ -132,7 +141,7 @@ public abstract class LombokPluginStarter extends AbstractProcessor {
             }
             jarFile.close();
 
-            MyURLClassLoader loader = new MyURLClassLoader(jarFileUrl, shadowClassLoader, loadFirst);
+            LombokPluginClassLoader loader = new LombokPluginClassLoader(jarFileUrl, shadowClassLoader, loadFirst);
             addOpensForLombok(loader);
 
 
@@ -168,6 +177,81 @@ public abstract class LombokPluginStarter extends AbstractProcessor {
 
     }
 
+    @Override
+    public Set<String> getSupportedAnnotationTypes() {
+        Class<?> type = this.getClass();
+        SupportedAnnotationTypes sat = null;
+        while (type != null && sat == null) {
+            sat = type.getAnnotation(SupportedAnnotationTypes.class);
+            type = type.getSuperclass();
+        }
+
+        boolean initialized = isInitialized();
+        if (sat == null) {
+            if (initialized)
+                this.processingEnv.getMessager().printMessage(Kind.WARNING,
+                        "No SupportedAnnotationTypes annotation " +
+                        "found on " + this.getClass().getName() +
+                        ", returning an empty set.");
+            return Set.of();
+        } else {
+            boolean stripModulePrefixes =
+                    initialized &&
+                    this.processingEnv.getSourceVersion().compareTo(SourceVersion.RELEASE_8) <= 0;
+            return this.arrayToSet(sat.value(), stripModulePrefixes,
+                    "annotation type", "@SupportedAnnotationTypes");
+        }
+    }
+
+    protected Set<String> arrayToSet(String[] array,
+                                     boolean stripModulePrefixes,
+                                     String contentType,
+                                     String annotationName) {
+        assert array != null;
+        Set<String> set = new HashSet<>();
+        for (String s : array) {
+            boolean stripped = false;
+            if (stripModulePrefixes) {
+                int index = s.indexOf('/');
+                if (index != -1) {
+                    s = s.substring(index + 1);
+                    stripped = true;
+                }
+            }
+            boolean added = set.add(s);
+            // Don't issue a duplicate warning when the module name is
+            // stripped off to avoid spurious warnings in a case like
+            // "foo/a.B", "bar/a.B".
+            if (!added && !stripped && isInitialized()) {
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING,
+                        "Duplicate " + contentType +
+                        " ``" + s + "'' for processor " +
+                        this.getClass().getName() +
+                        " in its " + annotationName +
+                        "annotation.");
+            }
+        }
+        return Collections.unmodifiableSet(set);
+    }
+
+    @Override
+    public SourceVersion getSupportedSourceVersion() {
+        SupportedSourceVersion ssv = this.getClass().getAnnotation(SupportedSourceVersion.class);
+        SourceVersion sv = null;
+        if (ssv == null) {
+            StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+            for (StackTraceElement element : stackTrace) {
+                //com.sun.tools.javac.processing.JavacProcessingEnvironment.ProcessorState.checkSourceVersionCompatibility
+                String ProcessorState = "com.sun.tools.javac.processing.JavacProcessingEnvironment$ProcessorState";
+                if (element.getClassName().equals(ProcessorState) && element.getMethodName().equals("checkSourceVersionCompatibility")) {
+                    return SourceVersion.latestSupported();
+                }
+            }
+            sv = SourceVersion.RELEASE_6;
+        } else
+            sv = ssv.value();
+        return sv;
+    }
 
     /**
      * @return "ok" string of initSelf is added
@@ -237,59 +321,4 @@ public abstract class LombokPluginStarter extends AbstractProcessor {
         return false;
     }
 
-    private static class MyURLClassLoader extends URLClassLoader {
-        final List<String> arrayList;
-        private final ClassLoader shadowClassLoader;
-        private final ClassLoader parentLoader;
-        private final Module myModule;
-        private final Module parentModule;
-        private final Set<String> parentLoad;
-
-        public MyURLClassLoader(URL jarFileUrl, ClassLoader shadowClassLoader, Set<String> parentLoad) {
-            super(new URL[]{jarFileUrl}, null);
-            this.parentLoad = parentLoad;
-            arrayList = new ArrayList<>();
-            this.shadowClassLoader = shadowClassLoader;
-            this.parentLoader = MyURLClassLoader.class.getClassLoader();
-            this.myModule = getUnnamedModule();
-            this.parentModule = parentLoader.getUnnamedModule();
-
-        }
-
-
-        @Override
-        public Class<?> loadClass(String name) throws ClassNotFoundException {
-            if (arrayList.contains(name)) throw new ClassNotFoundException(name);
-            if (parentLoad.contains(name)) return loadParent(name);
-            arrayList.add(name);
-            try {
-                try {
-                    return findClass(name);
-                } catch (ClassNotFoundException ignored) {
-                }
-                if (name.startsWith("org.objectweb.asm")) {
-                    return loadParent(name);
-                }
-                if (name.startsWith("lombok.")) {
-                    try {
-                        return shadowClassLoader.loadClass(name);
-                    } catch (ClassNotFoundException ex) {
-                        return loadParent(name);
-                    }
-
-                }
-                try {
-                    return loadParent(name);
-                } catch (ClassNotFoundException ex) {
-                    return shadowClassLoader.loadClass(name);
-                }
-            } finally {
-                arrayList.remove(name);
-            }
-        }
-
-        private Class<?> loadParent(String name) throws ClassNotFoundException {
-            return parentLoader.loadClass(name);
-        }
-    }
 }
