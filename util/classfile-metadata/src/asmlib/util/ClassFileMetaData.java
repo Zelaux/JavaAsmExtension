@@ -1,17 +1,47 @@
 package asmlib.util;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 public class ClassFileMetaData extends ClassFileMetaDataLombok {
+
+    private static final String[] typeToName;
+    @SuppressWarnings("FieldCanBeLocal")
+    private final String[] typesAsStrings;
+    static {
+        //noinspection Convert2Lambda
+        Map<String, Byte> fields = Arrays.stream(ClassFileMetaDataLombok.class.getDeclaredFields())
+                .filter(it -> it.getType() == byte.class).collect(Collectors.toMap(
+                        Field::getName, new Function<>() {
+                            @Override
+                            @SneakyThrows
+                            public Byte apply(Field it) {
+                                it.setAccessible(true);
+                                return (byte) it.get(null);
+                            }
+                        }
+                ));
+
+        int maxValue = fields.values().stream().mapToInt(Byte::intValue).max().orElseThrow();
+        typeToName = new String[maxValue + 1];
+        for (Map.Entry<String, Byte> entry : fields.entrySet()) {
+            typeToName[entry.getValue()] = entry.getKey();
+        }
+
+    }
+
     public ClassFileMetaData(byte[] byteCode) {
         super(byteCode);
+        typesAsStrings = typesAsString();
     }
 
     public Stream<ClassMethod> usedMethods() {
@@ -30,7 +60,6 @@ public class ClassFileMetaData extends ClassFileMetaDataLombok {
 
         return list.stream();
     }
-
 
     public Stream<ClassField> usedFields() {
         List<ClassField> list = new ArrayList<>();
@@ -51,6 +80,22 @@ public class ClassFileMetaData extends ClassFileMetaDataLombok {
             list.add(utf8s[readValue(offsets[typeI])]);
         }
         return list.stream();
+    }
+
+    public boolean usesAnnotation(Class<? extends Annotation> type) {
+        return usesAnnotation('L' + type.getName().replace('.', '/') + ';');
+    }
+
+    public boolean usesAnnotation(String descriptor) {
+        return containsUtf8(descriptor);
+    }
+
+    public String[] typesAsString() {
+        String[] strings = new String[types.length];
+        for (int i = 0; i < types.length; i++) {
+            strings[i] = typeToName[types[i]];
+        }
+        return strings;
     }
 
     @SuppressWarnings("ClassCanBeRecord")

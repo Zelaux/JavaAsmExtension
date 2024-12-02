@@ -3,8 +3,9 @@ dependencies{
     compileOnly 'org.projectlombok:lombok:1.18.32'
     annotationProcessor 'org.projectlombok:lombok:1.18.32'
     Project[] projects=[
-//            aproj("annotations:value-class"),
+            aproj("annotations:debug-print"),
             aproj("annotations:method-bytecode"),
+            aproj("annotations:value-class"),
     ]
     for(final def proj in projects){
         implementation(proj)

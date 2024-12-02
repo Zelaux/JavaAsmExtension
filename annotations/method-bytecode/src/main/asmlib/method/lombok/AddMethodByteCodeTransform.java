@@ -16,7 +16,7 @@ public class AddMethodByteCodeTransform implements PostCompilerTransformation {
     @Override
     public byte[] applyTransformations(byte[] original, String s, DiagnosticsReceiver diagnosticsReceiver) {
         ClassFileMetaData metaData = new ClassFileMetaData(original);
-        if (!metaData.containsUtf8(Type.getDescriptor(ByteCode.class))) return null;
+        if (!metaData.usesAnnotation(ByteCode.class)) return null;
 
         ClassReader reader = new ClassReader(original);
 
