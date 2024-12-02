@@ -79,6 +79,9 @@ void modifyDependency0(File unshadowedLombokJar){
 if(!unshadowedLombokJar.exists()) modifyDependency0(unshadowedLombokJar)
 
 configure(childProjects.values()){
+    sourceSets.main.java.srcDirs = ["src/main"]
+    sourceSets.main.resources.srcDirs = ["src/resources"]
+
     ext.unshadowedLombokJar = unshadowedLombokJar
     apply plugin: 'java'
     tasks.withType(JavaCompile).tap {

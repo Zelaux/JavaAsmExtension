@@ -19,5 +19,6 @@ dependencies {
     api aproj("util:post-visitor")
     api aproj("util:compile")
     api aproj("util:node")
+    api aproj("util:classfile-metadata")
 }
 apply from: "generate.gradle"

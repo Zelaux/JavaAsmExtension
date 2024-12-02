@@ -5,7 +5,7 @@ import asmlib.annotations.*;
 import static org.objectweb.asm.Opcodes.*;
 
 //@Getter
-public class TestClass{
+public class MethodByteCodeObject {
     //    @Setter
     @SuppressWarnings("unused")
     String value;
@@ -24,7 +24,7 @@ public class TestClass{
 
     @ByteCode({
         @Inst(value = DLOAD, sargs = "1"),
-        @Inst(value = INVOKESTATIC, sargs = {"test.TestClass", "sign", "(D)I", "false"}),
+        @Inst(value = INVOKESTATIC, sargs = {"test/MethodByteCodeObject", "sign", "(D)I", "false"}),
         @Inst(I2D),
         @Inst(DRETURN),
     })

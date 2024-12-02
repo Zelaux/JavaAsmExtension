@@ -19,4 +19,5 @@ include "util:loader"
 include "util:compile"
 include "util:post-visitor"
 include "util:node"
+include "util:classfile-metadata"
 

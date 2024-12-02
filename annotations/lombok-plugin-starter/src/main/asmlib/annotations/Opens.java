@@ -7,7 +7,7 @@ import java.lang.reflect.*;
 
 public class Opens{
 
-    private static Unsafe getUnsafe(){
+    static Unsafe getUnsafe(){
         try{
             Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
             theUnsafe.setAccessible(true);
@@ -47,7 +47,7 @@ public class Opens{
     }
 
 
-    private static long getFirstFieldOffset(Unsafe unsafe){
+     static long getFirstFieldOffset(Unsafe unsafe){
         try{
             return unsafe.objectFieldOffset(Parent.class.getDeclaredField("first"));
         }catch(NoSuchFieldException | SecurityException var2){

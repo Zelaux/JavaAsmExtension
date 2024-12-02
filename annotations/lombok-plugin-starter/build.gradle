@@ -1,3 +1,4 @@
+//file:noinspection DependencyNotationArgument
 sourceSets.main.java.srcDirs = ["src/main"]
 sourceSets.main.resources.srcDirs = ["src/resources"]
 dependencies{
@@ -6,7 +7,8 @@ dependencies{
 
 
     implementation "com.github.javaparser:javaparser-symbol-solver-core:$jparcerVersion"
-    api files(unshadowedLombokJar)
+    implementation aproj("util:classfile-metadata")
+    compileOnlyApi files(unshadowedLombokJar)
 }
 
 // Создаем новую конфигурацию для разрешения зависимости
