@@ -12,6 +12,7 @@ include "annotations"
 include "annotations:lombok-plugin-starter"
 include "annotations:method-bytecode"
 include "annotations:test"
+include "annotations:debug-print"
 
 include "util:visitor"
 include "util:method"

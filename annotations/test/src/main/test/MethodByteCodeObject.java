@@ -5,6 +5,7 @@ import asmlib.annotations.*;
 import static org.objectweb.asm.Opcodes.*;
 
 //@Getter
+@DebugByteCode(outfile = "test")
 public class MethodByteCodeObject {
     //    @Setter
     @SuppressWarnings("unused")
