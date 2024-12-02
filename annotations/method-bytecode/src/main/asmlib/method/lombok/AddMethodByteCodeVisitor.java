@@ -23,7 +23,7 @@ class AddMethodByteCodeVisitor extends ClassVisitor{
         if((access & accessMask) == 0) return super.visitMethod(access, name, descriptor, signature, exceptions);
         return new PostMethodVisitor(api, access, name, descriptor, signature, exceptions)
             .consumers(it -> {
-                AnnotationNode rawNode = NodeUtil.find(it.visibleAnnotations, ByteCode.class);
+                AnnotationNode rawNode = NodeUtil.findAnnotation(it.visibleAnnotations, ByteCode.class);
                 if(rawNode == null) return;
                 AnnotationArgumentMap asmListNode = new AnnotationArgumentMap(rawNode);
                 //noinspection unchecked
