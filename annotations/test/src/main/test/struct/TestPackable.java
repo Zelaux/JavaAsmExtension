@@ -1,7 +1,7 @@
 package test.struct;
 
 import asmlib.annotations.DebugAST;
-import asmlib.annotations.Packable;
+//import asmlib.annotations.Packable;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.With;
@@ -16,9 +16,9 @@ public class TestPackable {
     public byte x, y;
 
 
-    @Packable.Unpack
+//    @Packable.Unpack
     public static native TestPackable unpack(short type);
 
-    @Packable.Pack
+//    @Packable.Pack
     public native short pack();
 }

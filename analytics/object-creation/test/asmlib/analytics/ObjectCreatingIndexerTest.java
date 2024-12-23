@@ -52,7 +52,7 @@ public class ObjectCreatingIndexerTest {
     @SuppressWarnings("unused")
     void methodToTest() throws URISyntaxException, FileNotFoundException {
         byte[] bytes = new byte[0];
-        String string = new String(bytes);
+        String string = new String(bytes, 0, bytes.length);
         int i = 0;
         int i1 = 0;
         int i2 = 0;

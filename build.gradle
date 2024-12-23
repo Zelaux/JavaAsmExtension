@@ -1,3 +1,5 @@
+import java.lang.reflect.Field
+
 //file:noinspection GroovyAssignabilityCheck
 def localRoot = project
 subprojects{
@@ -5,6 +7,20 @@ subprojects{
     group = 'com.github.Zelaux.JavaAsmLib'
     version = '1.0'
     ext.localRoot = localRoot
+    ext.all_exports=[
+            'jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED',
+            'jdk.compiler/com.sun.tools.javac.code.Symbol=ALL-UNNAMED',
+            'jdk.compiler/com.sun.tools.javac.code.Type=ALL-UNNAMED',
+            'jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED',
+            'jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED',
+            'jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED',
+            'jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED',
+            'jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED',
+            'jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED',
+            'jdk.compiler/com.sun.tools.javac.tree.JCTree=ALL-UNNAMED',
+            'jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED',
+            'jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED',
+    ]
     ext.aproj = { String name ->
         if(localRoot == rootProject) return project(":" + name)
         Project proj = localRoot
@@ -24,6 +40,17 @@ subprojects{
             targetCompatibility = 17
             sourceCompatibility = 17
             options.fork = true
+
+            options.forkOptions.jvmArgs += [
+                    '--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED',
+                    '--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED',
+                    '--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED',
+                    '--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED',
+                    '--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED',
+                    '--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED',
+                    '--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED',
+                    '--add-opens=java.base/sun.reflect.annotation=ALL-UNNAMED',
+            ]
         }
         apply plugin: "java-library"
         //noinspection GroovyAssignabilityCheck
@@ -52,10 +79,70 @@ subprojects{
             testCompileOnly 'org.projectlombok:lombok:1.18.32'
             testAnnotationProcessor 'org.projectlombok:lombok:1.18.32'
         }
-
         test{
             useJUnitPlatform()
         }
+
+        tasks.withType(Javadoc){
+            options{
+                addStringOption('Xdoclint:none', '-quiet')
+                encoding('UTF-8')
+            }
+        }
+        javadoc{
+            // Настройки для Javadoc
+            options.encoding = 'UTF-8'
+            options.memberLevel = JavadocMemberLevel.PUBLIC
+            options.addStringOption("Xdoclint:none", "-quiet")
+
+/*
+            *//*-release*//*
+
+
+            Class<?> clazz = options.getClass()
+            Field optionFileField = null
+            while(optionFileField == null){
+                try{
+                    optionFileField = clazz.getDeclaredField("optionFile")
+                }catch(NoSuchFieldException e){}
+                clazz = clazz.getSuperclass();
+            }
+            optionFileField.accessible = true;
+            def optionFile = optionFileField.get(options)
+            clazz = optionFile.getClass()
+            Field optionsField = null
+            while(optionsField == null){
+                try{
+                    optionsField = clazz.getDeclaredField("options")
+                }catch(NoSuchFieldException e){}
+                clazz = clazz.superclass
+            }
+            optionsField.accessible = true
+            Map<String, Object> optionMap = optionsField.get(optionFile);
+            optionMap.remove("-release")
+            List<String> all=all_exports;
+            String exportOptions = all.collect { "--add-exports ${it}" }.join(";")
+            for(final def it_ in all){
+                options.addStringOption('-add-exports='+it_)
+                options.addStringOption('-add-opens='+it_)
+            }*/
+            failOnError=false
+        }
+
+        task sourcesJar(type: Jar, dependsOn: classes){
+            archiveClassifier = 'sources'
+            from sourceSets.main.allSource
+        }
+//        task sourcesJar(type: Jar) {
+//            // Указываем, какие файлы включать в архив
+//            from sourceSets.main.allSource.srcDirs.collect { fileTree(dir: it) {
+//                // Исключаем все файлы из каталога build/
+//                exclude '**/build/**'
+//            } }
+//
+//            // Указываем имя JAR файла
+//            archiveClassifier.set('sources')
+//        }
     }
 }
 ext.asmLibRoot = project
