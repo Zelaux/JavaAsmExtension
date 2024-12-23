@@ -23,7 +23,7 @@ void modifyDependency0(File unshadowedLombokJar){
     }
 
     if(!dependency){
-        println "Зависимость не найдена: ${group}:${artifact}:${version}"
+        println "Dependency not found: ${group}:${artifact}:${version}"
         return
     }
     def jarFile = dependency.moduleArtifacts.find{ it.file.name.endsWith('.jar') }?.file
@@ -41,7 +41,6 @@ void modifyDependency0(File unshadowedLombokJar){
 
     // Распаковываем JAR
     ant.unzip(src: jarFile, dest: tempDir)
-    println("Hello world")
 
     def localRoot = new File(tempDir, "SCL.lombok")
     localRoot.eachFileRecurse{ file ->
@@ -63,7 +62,7 @@ void modifyDependency0(File unshadowedLombokJar){
                 newFile.getParentFile().mkdirs()
                 if(!file.renameTo(newFile)) throw new RuntimeException(newFile.canonicalPath)
 
-                println "Переименован: ${oldName} -> ${newFile}"
+//                println "Rename: ${oldName} -> ${newFile}"
             }
         }
     }
