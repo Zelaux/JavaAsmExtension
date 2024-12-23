@@ -5,11 +5,12 @@ dependencies{
     Project[] projects=[
             aproj("annotations:debug-print"),
             aproj("annotations:method-bytecode"),
-            aproj("annotations:value-class"),
+            //aproj("annotations:packable-class"),
     ]
     for(final def proj in projects){
         implementation(proj)
         annotationProcessor(proj)
+        testAnnotationProcessor(proj)
     }
     compileOnly gradleApi()
 }

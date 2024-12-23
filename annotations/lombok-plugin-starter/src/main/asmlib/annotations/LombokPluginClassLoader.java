@@ -39,7 +39,7 @@ class LombokPluginClassLoader extends URLClassLoader {
             if (name.startsWith("org.objectweb.asm")) {
                 return loadParent(name);
             }
-            if (name.startsWith("lombok.")) {
+            if (name.contains("lombok.")) {
                 try {
                     return shadowClassLoader.loadClass(name);
                 } catch (ClassNotFoundException ex) {

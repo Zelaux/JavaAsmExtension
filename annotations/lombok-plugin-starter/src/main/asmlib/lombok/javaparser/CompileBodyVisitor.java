@@ -1,4 +1,4 @@
-package asmlib.javaparser;
+package asmlib.lombok.javaparser;
 
 import com.github.javaparser.ast.*;
 import com.github.javaparser.ast.Modifier.*;
@@ -170,7 +170,9 @@ public class CompileBodyVisitor implements GenericVisitor<DiagnosticPosition, Vo
         //noinspection unchecked
         JCTree[] array = nodeList.stream().flatMap(it -> {
             NodeList<VariableDeclarator> inner = null;
-            if (it instanceof FieldDeclaration fieldDeclaration) {
+            if (it instanceof ExpressionStmt expressionStmt && expressionStmt.getExpression() instanceof VariableDeclarationExpr declarationExpr) {
+                inner=declarationExpr.getVariables();
+            } else if (it instanceof FieldDeclaration fieldDeclaration) {
                 inner = fieldDeclaration.getVariables();
             } else if (it instanceof VariableDeclarationExpr declarationExpr) {
                 inner = declarationExpr.getVariables();
@@ -655,8 +657,7 @@ public class CompileBodyVisitor implements GenericVisitor<DiagnosticPosition, Vo
     }
 
     @Override
-    public JCTree visit(VariableDeclarationExpr n, Void arg) {
-
+    public JCVariableDecl visit(VariableDeclarationExpr n, Void arg) {
         return why();
     }
 
