@@ -2,6 +2,7 @@ import java.lang.reflect.Field
 
 //file:noinspection GroovyAssignabilityCheck
 def localRoot = project
+allprojects{}
 subprojects{
     apply plugin: 'maven-publish'
     group = 'com.github.Zelaux.JavaAsmLib'
