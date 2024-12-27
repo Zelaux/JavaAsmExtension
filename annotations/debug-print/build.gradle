@@ -6,5 +6,5 @@ dependencies{
     api aproj("annotations:lombok-plugin-starter")
     implementation aproj("util:classfile-metadata")
     implementation aproj("util:node")
-    compileOnlyApi files(unshadowedLombokJar)
+    compileOnlyApi aproj("annotations:unshadowed-lombok")
 }

@@ -15,6 +15,7 @@ include "annotations:value-class"
 include "annotations:test"
 include "annotations:packable-class"
 include "annotations:debug-print"
+include "annotations:unshadowed-lombok"
 
 include "util:visitor"
 include "util:method"

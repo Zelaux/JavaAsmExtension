@@ -8,5 +8,5 @@ dependencies{
     implementation "com.github.javaparser:javaparser-symbol-solver-core:$jparcerVersion"
     implementation aproj("util:classfile-metadata")
     api aproj("annotations:lombok-plugin-starter")
-    compileOnlyApi files(unshadowedLombokJar)
+    compileOnlyApi aproj("annotations:unshadowed-lombok")
 }

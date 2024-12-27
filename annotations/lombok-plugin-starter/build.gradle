@@ -8,7 +8,7 @@ dependencies{
 
     implementation "com.github.javaparser:javaparser-symbol-solver-core:$jparcerVersion"
     implementation aproj("util:classfile-metadata")
-    compileOnlyApi files(unshadowedLombokJar)
+    compileOnlyApi aproj("annotations:unshadowed-lombok")
 }
 
 // Создаем новую конфигурацию для разрешения зависимости

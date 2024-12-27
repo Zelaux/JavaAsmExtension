@@ -6,7 +6,7 @@ def lombokVersion = "1.18.32"
 def unshadowedLombokJar = file("${buildDir}/libs/unshadows-lombok-${lombokVersion}.jar")
 
 // Таск для разрешения зависимости и внесения изменений
-void modifyDependency0(File unshadowedLombokJar){
+void modifyDependency0(File unshadowedLombokJar) {
     // Укажите группу, артефакт и версию вашей зависимости
     def group = 'org.projectlombok'
     def artifact = 'lombok'
@@ -76,17 +76,40 @@ void modifyDependency0(File unshadowedLombokJar){
 
 // Добавляем изменённый JAR в зависимости
 if(!unshadowedLombokJar.exists()) modifyDependency0(unshadowedLombokJar)
+project(":annotations:unshadowed-lombok"){
+    buildDir=new File(parent.buildDir,"mock-project")
+    apply plugin: "java"
+    dependencies{
+        api files(unshadowedLombokJar)
+    }
+    task returnSelf(type: Copy){
+        from(unshadowedLombokJar)
+        into("$buildDir/libs")
+    }
+    publishing{
+        publications{
+            maven(MavenPublication){
+
+                artifact(provider{unshadowedLombokJar})
+                group = project.group
+                version = project.version
+                artifactId = calculateName(project)
+            }
+        }
+    }
+}
 
 configure(childProjects.values()){
+    if(project.name == "unshadowed-lombok") return
     sourceSets.main.java.srcDirs = ["src/main"]
     sourceSets.main.resources.srcDirs = ["src/resources"]
     tasks.withType(Javadoc).configureEach{
-        it.outputs.upToDateWhen{true}
+        it.outputs.upToDateWhen{ true }
     }
     ext.unshadowedLombokJar = unshadowedLombokJar
     apply plugin: 'java'
-    tasks.withType(JavaCompile).tap {
-        configureEach {
+    tasks.withType(JavaCompile).tap{
+        configureEach{
             options.fork = true
             options.compilerArgs += [
                     '--add-exports', 'jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED',
