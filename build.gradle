@@ -176,8 +176,8 @@ void configure1(Project project) {
             publications{
                 maven(MavenPublication){
                     from components.java
-                    group = selfProject.group
-                    version = selfProject.version
+                    //group = selfProject.group
+                    //version = selfProject.version
                     artifactId = calculateName(selfProject)
                 }
             }
