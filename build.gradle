@@ -1,9 +1,11 @@
+import java.lang.reflect.Field
+
 //file:noinspection GroovyAssignabilityCheck
 def localRoot = project
+allprojects{}
 subprojects{
     apply plugin: 'maven-publish'
     group = 'com.github.Zelaux.JavaAsmLib'
-    version = '1.0'
     ext.localRoot = localRoot
     ext.all_exports = [
             'jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED',
@@ -178,8 +180,8 @@ void configure1(Project project) {
                     }else{
                         println("shadow")
                     }
-                    group = selfProject.group
-                    version = selfProject.version
+//                    group = selfProject.group
+//                    version = selfProject.version
                     artifactId = calculateName(selfProject)
                 }
             }
