@@ -76,7 +76,7 @@ void modifyDependency0(File unshadowedLombokJar) {
 
 // Добавляем изменённый JAR в зависимости
 if(!unshadowedLombokJar.exists()) modifyDependency0(unshadowedLombokJar)
-project(":annotations:unshadowed-lombok"){
+configure(aproj(":annotations:unshadowed-lombok")){
     buildDir=new File(parent.buildDir,"mock-project")
     apply plugin: "java"
     dependencies{

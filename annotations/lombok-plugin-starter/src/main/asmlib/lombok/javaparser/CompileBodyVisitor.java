@@ -43,11 +43,11 @@ public class CompileBodyVisitor implements GenericVisitor<DiagnosticPosition, Vo
     public final JavacTreeMaker maker;
     public final TreeMaker imaker;
 
-    private final Symtab symtab;
-    private final JavacAST ast;
+    protected final Symtab symtab;
+    protected final JavacAST ast;
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
-    private final Names names;
-    private final ParserFactory parserFactory;
+    protected final Names names;
+    protected final ParserFactory parserFactory;
 
     @SneakyThrows
     public CompileBodyVisitor(JavacTreeMaker maker, JavacAST ast, Context context) {
@@ -62,7 +62,7 @@ public class CompileBodyVisitor implements GenericVisitor<DiagnosticPosition, Vo
 
     @SuppressWarnings("unused")
     @MagicConstant(flagsFromClass = Flags.class)
-    private static long flags(@MagicConstant(flagsFromClass = Flags.class) long... flags) {
+    protected static long flags(@MagicConstant(flagsFromClass = Flags.class) long... flags) {
         long flag = 0;
         for (long l : flags) {
             flag |= l;
@@ -71,7 +71,7 @@ public class CompileBodyVisitor implements GenericVisitor<DiagnosticPosition, Vo
     }
 
     @MagicConstant(flagsFromClass = Flags.class)
-    private static long flags(@MagicConstant(flagsFromClass = Flags.class) int... flags) {
+    protected static long flags(@MagicConstant(flagsFromClass = Flags.class) int... flags) {
         long flag = 0;
         for (long l : flags) {
             flag |= l;
@@ -79,17 +79,17 @@ public class CompileBodyVisitor implements GenericVisitor<DiagnosticPosition, Vo
         return flag;
     }
 
-    private static <T> List<T> nil() {
+    protected static <T> List<T> nil() {
         return List.nil();
     }
 
     @NotNull
-    private static <T> T parent(Node n) {
+    protected static <T> T parent(Node n) {
         //noinspection unchecked,OptionalGetWithoutIsPresent
         return (T) n.getParentNode().get();
     }
 
-    private static Tag map(Operator operator) {
+    protected static Tag map(Operator operator) {
         return switch (operator) {
 
             case OR -> Tag.OR;
@@ -114,7 +114,7 @@ public class CompileBodyVisitor implements GenericVisitor<DiagnosticPosition, Vo
         };
     }
 
-    private static long map(Keyword keyword) {
+    protected static long map(Keyword keyword) {
         return switch (keyword) {
             case PUBLIC -> java.lang.reflect.Modifier.PUBLIC;
             case PROTECTED -> java.lang.reflect.Modifier.PROTECTED;
@@ -131,11 +131,11 @@ public class CompileBodyVisitor implements GenericVisitor<DiagnosticPosition, Vo
         };
     }
 
-    private static <T> T impossible() {
+    protected static <T> T impossible() {
         throw new UnsupportedOperationException();
     }
 
-    private JCModifiers modifiers(NodeWithModifiers<?> node) {
+    protected JCModifiers modifiers(NodeWithModifiers<?> node) {
         long modifiers = 0;
         for (Modifier modifier : node.getModifiers()) {
             Keyword keyword = modifier.getKeyword();
@@ -159,12 +159,17 @@ public class CompileBodyVisitor implements GenericVisitor<DiagnosticPosition, Vo
         return maker.TypeParameter(name(n), transformList(n.getTypeBound()));
     }
 
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    private <T extends JCTree> List<T> transformList(Optional<? extends NodeList<? extends Node>> nodeList) {
+
+
+    /*@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    protected <T extends JCTree> List<JCExpression> transformList(Optional<? extends NodeList<? extends Expression>> nodeList) {
+        return transformList0(nodeList);
+    }*/
+    protected <T extends JCTree> List<T> transformList(Optional<? extends NodeList<? extends Node>> nodeList) {
         return transformList(nodeList.orElse(null));
     }
 
-    private <T extends JCTree> List<T> transformList(@Nullable NodeList<? extends Node> nodeList) {
+    protected <T extends JCTree> List<T> transformList(@Nullable NodeList<? extends Node> nodeList) {
         if (nodeList == null) return nil();
 
         //noinspection unchecked
@@ -187,20 +192,20 @@ public class CompileBodyVisitor implements GenericVisitor<DiagnosticPosition, Vo
 
     }
 
-    private com.sun.tools.javac.util.Name name(NodeWithName<?> name) {
+    protected com.sun.tools.javac.util.Name name(NodeWithName<?> name) {
         return name(name.getNameAsString());
     }
 
     @Contract("null->null;!null->!null")
     @Nullable
-    private com.sun.tools.javac.util.Name name(@Nullable NodeWithSimpleName<?> name) {
+    protected com.sun.tools.javac.util.Name name(@Nullable NodeWithSimpleName<?> name) {
         if (name == null) return null;
         return name(name.getNameAsString());
     }
 
     @Contract("null->null;!null->!null")
     @Nullable
-    private com.sun.tools.javac.util.Name name(@Nullable String name) {
+    protected com.sun.tools.javac.util.Name name(@Nullable String name) {
         if (name == null) return null;
         return ast.toName(name);
     }
@@ -220,18 +225,18 @@ public class CompileBodyVisitor implements GenericVisitor<DiagnosticPosition, Vo
         return maker.ClassDef(modifiers(n), name(n), typeArgs(n), (JCExpression) n.accept(this, null), transformList(n.getImplementedTypes()), transformList(n.getMembers()));
     }
 
-    private List<JCTypeParameter> typeArgs(NodeWithTypeParameters<?> n) {
+    protected List<JCTypeParameter> typeArgs(NodeWithTypeParameters<?> n) {
         return transformList(n.getTypeParameters());
     }
 
-    private JCModifiers modifiers(NodeWithModifiers<?> node, @MagicConstant(flagsFromClass = Flags.class) long extraMod) {
+    protected JCModifiers modifiers(NodeWithModifiers<?> node, @MagicConstant(flagsFromClass = Flags.class) long extraMod) {
         JCModifiers modifiers = modifiers(node);
         modifiers.flags |= extraMod;
         return modifiers;
     }
 
     @SuppressWarnings("unused")
-    private JCModifiers modifiers(NodeWithModifiers<?> node, @MagicConstant(flagsFromClass = Flags.class) int extraMod) {
+    protected JCModifiers modifiers(NodeWithModifiers<?> node, @MagicConstant(flagsFromClass = Flags.class) int extraMod) {
         return modifiers(node, (long) extraMod);
     }
 
@@ -265,25 +270,25 @@ public class CompileBodyVisitor implements GenericVisitor<DiagnosticPosition, Vo
     }
 
     @SuppressWarnings("SameParameterValue")
-    private JCModifiers modifiers(@MagicConstant(flagsFromClass = Flags.class) Long flags) {//TODO after compile replace Long to long
+    protected JCModifiers modifiers(@MagicConstant(flagsFromClass = Flags.class) Long flags) {//TODO after compile replace Long to long
         return maker.Modifiers(flags);
     }
 
     @SuppressWarnings("SameParameterValue")
-    private JCModifiers modifiers(@MagicConstant(flagsFromClass = Flags.class) int flags) {//TODO after compile replace Long to long
+    protected JCModifiers modifiers(@MagicConstant(flagsFromClass = Flags.class) int flags) {//TODO after compile replace Long to long
         return maker.Modifiers(flags);
     }
 
     @Contract("null->null;!null->!null")
     @Nullable
-    private JCIdent ident(@Nullable NodeWithName<?> parent) {
+    protected JCIdent ident(@Nullable NodeWithName<?> parent) {
         if (parent == null) return null;
         return maker.Ident(name(parent));
     }
 
     @Contract("null->null;!null->!null")
     @Nullable
-    private JCIdent ident(@Nullable NodeWithSimpleName<?> parent) {
+    protected JCIdent ident(@Nullable NodeWithSimpleName<?> parent) {
         if (parent == null) return null;
         return maker.Ident(name(parent));
     }
@@ -301,11 +306,12 @@ public class CompileBodyVisitor implements GenericVisitor<DiagnosticPosition, Vo
 
     @Override
     public JCMethodDecl visit(AnnotationMemberDeclaration n, Void arg) {
-        return maker.MethodDef(maker.Modifiers(flags()), name(n), type(n.getType()), nil(), nil(), nil(), null, transform(n.getDefaultValue()));
+        return maker.MethodDef(maker.Modifiers(flags()), name(n),
+                type(n.getType()), nil(), nil(), nil(), null, transform(n.getDefaultValue()));
     }
 
     @Nullable
-    private <T extends JCTree, B extends Node> T transform(@SuppressWarnings("OptionalUsedAsFieldOrParameterType") Optional<B> defaultValue) {
+    protected <T extends JCTree, B extends Node> T transform(@SuppressWarnings("OptionalUsedAsFieldOrParameterType") Optional<B> defaultValue) {
         return defaultValue.map(this::<T>transform).orElse(null);
     }
 
@@ -314,17 +320,17 @@ public class CompileBodyVisitor implements GenericVisitor<DiagnosticPosition, Vo
         return why();
     }
 
-    private <T> T why() {
+    protected <T> T why() {
         throw new UnsupportedOperationException("This shouldn't be call");
     }
 
     @Override
-    public JCTree visit(VariableDeclarator n, Void arg) {
+    public JCTree.JCVariableDecl visit(VariableDeclarator n, Void arg) {
         NodeWithModifiers<?> fieldDeclaration = parent(n);
         return maker.VarDef(modifiers(fieldDeclaration), name(n), type(n.getType()), transform(n.getInitializer()));
     }
 
-    private JCExpression type(Type type) {
+    protected JCExpression type(Type type) {
 //        return maker.Ident(name(type.asString()));
         return transform(type);
     }
@@ -336,11 +342,19 @@ public class CompileBodyVisitor implements GenericVisitor<DiagnosticPosition, Vo
                 n.isStatic() ? name("<cinit>") : name("<init>"),
                 maker.Type(symtab.voidType),
                 typeArgs(n),
-                transformList(n.getParameters()),
+                params(n.getParameters()),
                 transformList(n.getThrownExceptions()),
                 transform(n.getBody()),
                 null
         );
+    }
+
+    protected List<JCVariableDecl> params(NodeList<Parameter> parameters) {
+        List<JCVariableDecl> jcVariableDecls = transformList(parameters);
+        return jcVariableDecls.map(it->{
+            it.mods.flags|= Flags.PARAMETER;
+            return it;
+        });
     }
 
     @Override
@@ -350,7 +364,7 @@ public class CompileBodyVisitor implements GenericVisitor<DiagnosticPosition, Vo
                 name(n),
                 type(n.getType()),
                 typeArgs(n),
-                transformList(n.getParameters()),
+                params(n.getParameters()),
                 transformList(n.getThrownExceptions()),
                 transform(n.getBody()),
                 null
@@ -396,7 +410,7 @@ public class CompileBodyVisitor implements GenericVisitor<DiagnosticPosition, Vo
         return maker.Select(origin, name);
     }
 
-    private ClassSymbol classSymbol(ClassOrInterfaceType n) {
+    protected ClassSymbol classSymbol(ClassOrInterfaceType n) {
         ClassSymbol owner = n.getScope().map(this::classSymbol)
                 .orElse(null);
         com.sun.tools.javac.util.Name name = name(n.getNameAsString());
@@ -438,7 +452,7 @@ public class CompileBodyVisitor implements GenericVisitor<DiagnosticPosition, Vo
         return maker.NewArray(
                 type(n.getElementType()),
                 transformList(n.getLevels()),
-                transformList(n.getInitializer().map(ArrayInitializerExpr::getValues).orElse(null))
+                transformExpr(n.getInitializer().map(ArrayInitializerExpr::getValues).orElse(null))
         );
     }
 
@@ -586,7 +600,7 @@ public class CompileBodyVisitor implements GenericVisitor<DiagnosticPosition, Vo
                         .<JCExpression>map(it -> maker.Select(it, name))
                         .orElse(maker.Ident(name))
                 ,
-                transformList(n.getArguments())
+                transformExpr(n.getArguments())
         );
     }
 
@@ -601,7 +615,7 @@ public class CompileBodyVisitor implements GenericVisitor<DiagnosticPosition, Vo
                 null,//TODO add enclosing expression
                 transformList(n.getTypeArguments()),
                 type(n.getType()),
-                transformList(n.getArguments()),
+                transformExpr(n.getArguments()),
                 n.getAnonymousClassBody()
                         .map(it -> maker.ClassDef(
                                 modifiers(Flags.PRIVATE),
@@ -617,24 +631,20 @@ public class CompileBodyVisitor implements GenericVisitor<DiagnosticPosition, Vo
 
     @Override
     public JCIdent visit(ThisExpr n, Void arg) {
-        return parseAsExpression(n);
+        return maker.Ident(name("this"));
     }
 
-    private JavacParser parser(Node n) {
+    protected JavacParser parser(Node n) {
         return parser(n.toString());
     }
 
     @Override
     public JCIdent visit(SuperExpr n, Void arg) {
-        return parseAsExpression(n);
+        return maker.Ident(name("super"));
     }
 
-    private <T extends JCExpression> T parseAsExpression(Node n) {
-        //noinspection unchecked
-        return (T) parser(n).parseExpression();
-    }
 
-    private JavacParser parser(String string) {
+    protected JavacParser parser(String string) {
         return parserFactory.newParser(string, true, true, true);
     }
 
@@ -643,7 +653,7 @@ public class CompileBodyVisitor implements GenericVisitor<DiagnosticPosition, Vo
         return imaker.Unary(map(n.getOperator()), transform(n.getExpression()));
     }
 
-    private Tag map(UnaryExpr.Operator operator) {
+    protected Tag map(UnaryExpr.Operator operator) {
         return switch (operator) {
             case PLUS -> Tag.POS;
             case MINUS -> Tag.NEG;
@@ -655,10 +665,13 @@ public class CompileBodyVisitor implements GenericVisitor<DiagnosticPosition, Vo
             case POSTFIX_DECREMENT -> Tag.POSTDEC;
         };
     }
-
     @Override
-    public JCVariableDecl visit(VariableDeclarationExpr n, Void arg) {
-        return why();
+    public JCTree.JCVariableDecl visit(VariableDeclarationExpr n, Void arg) {
+        if (n.getVariables().size() > 1) {
+            throw new UnsupportedOperationException("Do not try to transform 'int a=1,b=2;', because I dont, now, how to return 2 VarDecl.\n you can transform block of code with this expression, but do not try to do this with separated expression.");
+        }
+        VariableDeclarator declarator = n.getVariables().get(0);
+        return visit(declarator,arg);
     }
 
     @Override
@@ -694,7 +707,7 @@ public class CompileBodyVisitor implements GenericVisitor<DiagnosticPosition, Vo
         return maker.Apply(
                 transformList(n.getTypeArguments()),
                 maker.Ident(n.isThis() ? names._this : names._super),
-                transformList(n.getArguments())
+                transformExpr(n.getArguments())
         );
     }
 
@@ -735,7 +748,10 @@ public class CompileBodyVisitor implements GenericVisitor<DiagnosticPosition, Vo
     }
 
     @Override
-    public JCExpressionStatement visit(ExpressionStmt n, Void arg) {
+    public JCStatement visit(ExpressionStmt n, Void arg) {
+        if(n.getExpression() instanceof VariableDeclarationExpr expr){
+            return visit(expr,arg);
+        }
         return maker.Exec(transform(n.getExpression()));
     }
 
@@ -770,7 +786,7 @@ public class CompileBodyVisitor implements GenericVisitor<DiagnosticPosition, Vo
     }
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    private com.sun.tools.javac.util.Name name(Optional<SimpleName> label) {
+    protected com.sun.tools.javac.util.Name name(Optional<SimpleName> label) {
         return label.map(SimpleName::getIdentifier).map(this::name).orElse(null);
     }
 
@@ -821,11 +837,19 @@ public class CompileBodyVisitor implements GenericVisitor<DiagnosticPosition, Vo
     @Override
     public JCTree visit(ForStmt n, Void arg) {
         return maker.ForLoop(
-                transformList(n.getInitialization()),
+                transformExprToStatement(n.getInitialization()).map(it->it),
                 transform(n.getCompare()),
-                transformList(n.getUpdate()),
+                transformExprToStatement(n.getUpdate()),
                 transform(n.getBody())
         );
+    }
+
+    protected List<JCExpressionStatement> transformExprToStatement(NodeList<Expression> update) {
+        return transformExpr(update).map(maker::Exec);
+    }
+
+    protected List<JCExpression> transformExpr(NodeList<Expression> update) {
+        return transformList(update);
     }
 
     @Override
@@ -851,7 +875,7 @@ public class CompileBodyVisitor implements GenericVisitor<DiagnosticPosition, Vo
             );
         }
         return maker.Try(
-                transformList(n.getResources()),
+                transformExpr(n.getResources()).map(it->it),
                 transform(n.getTryBlock()),
                 transformList(n.getCatchClauses()),
                 transform(n.getFinallyBlock())
@@ -869,7 +893,7 @@ public class CompileBodyVisitor implements GenericVisitor<DiagnosticPosition, Vo
     @Override
     public JCTree visit(LambdaExpr n, Void arg) {
         return imaker.Lambda(
-                transformList(n.getParameters()),
+                params(n.getParameters()),
                 transform(n.getBody())
         );
     }

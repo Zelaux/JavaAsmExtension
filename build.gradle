@@ -25,6 +25,7 @@ subprojects{
         if(localRoot == rootProject) return project(":" + name)
         Project proj = localRoot
         for(final def part in name.split(':')){
+            if(part=="")continue
             proj = proj.childProjects[part]
         }
         return proj

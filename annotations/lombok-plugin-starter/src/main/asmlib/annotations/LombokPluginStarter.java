@@ -58,7 +58,7 @@ public abstract class LombokPluginStarter extends AbstractProcessor {
     @SneakyThrows
     private static void wait0() {
         String numberString = System.getenv().getOrDefault("lombok.plugin.debug_sleep", "0");
-        if (!numberString.matches("\\d")) {
+        if (!numberString.matches("\\d+")) {
             System.err.println("WARNING: env property 'lombok.plugin.debug_sleep' must contain number >=0");
             return;
         }
