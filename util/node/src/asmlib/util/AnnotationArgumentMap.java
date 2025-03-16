@@ -52,4 +52,8 @@ public class AnnotationArgumentMap {
     public boolean has(String name) {
         return map.containsKey(name);
     }
+
+    public Map<String, Object> copyMap() {
+        return new HashMap<>(map);
+    }
 }
