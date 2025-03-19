@@ -88,6 +88,7 @@ public class MoveInitializerProc extends JavacASTAdapter {
             if (node.hasAnnotation(InitializeIn.Exclude.class)) continue;
             boolean allowedStaticInNonStatic = allowedStaticInNonStatic_class || node.hasAnnotation(AllowInstanceInitializationOfStaticFields.class);
             JCTree.JCVariableDecl jcTree = (JCTree.JCVariableDecl) node.get();
+
             if ((jcTree.mods.flags & Flags.FINAL) != 0) continue;
             boolean isStatic = (jcTree.mods.flags & Flags.STATIC) != 0;
 

@@ -15,10 +15,7 @@ import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.*;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
+import java.lang.reflect.*;
 import java.util.*;
 
 public class MoveInitializerPostCompilation implements PostCompilerTransformation {
@@ -31,13 +28,13 @@ public class MoveInitializerPostCompilation implements PostCompilerTransformatio
         if (annotation == null) {
             annotation = NodeUtil.findAnnotation(invisibleAnnotations, type);
             if (annotation != null) {
-               invisibleAnnotations.remove(annotation);
+                invisibleAnnotations.remove(annotation);
             }
         } else {
             visibleAnnotations.remove(annotation);
         }
 
-        return new AnnotationArgumentMap(annotation == null ? null : Objects.requireNonNullElse(annotation.values,new ArrayList<>()));
+        return new AnnotationArgumentMap(annotation == null ? null : Objects.requireNonNullElse(annotation.values, new ArrayList<>()));
     }
 
     private static @Nullable InitializeIn makeAnnotation(Map<String, Object> map) {
@@ -124,6 +121,10 @@ public class MoveInitializerPostCompilation implements PostCompilerTransformatio
         return pos.head ? InitializeIn.Position.Head : InitializeIn.Position.BeforeReturn;
     }
 
+    private static @NotNull AnnotationArgumentMap findAnnotation(FieldNode field, Class<? extends Annotation> type) {
+        return findAnnotation(field.visibleAnnotations, field.invisibleAnnotations, type);
+    }
+
     @Override
     public byte[] applyTransformations(byte[] bytes, String s, DiagnosticsReceiver diagnosticsReceiver) {
         ClassFileMetaData metaData = new ClassFileMetaData(bytes);
@@ -166,17 +167,23 @@ public class MoveInitializerPostCompilation implements PostCompilerTransformatio
                 continue;
             }
             if (localMap.isNull() && classAnno == null) continue;
+            if(Modifier.isFinal(field.access))continue;
+
             val initializer = localMap.isNull() ? classAnno : makeAnnotation(localMap.copyMap());
             String targetMethodFullDescriptor = initializer.value();
             MethodNode targetMethod = descriptorToMethod.get(targetMethodFullDescriptor);
             MethodNode methodNode = fieldToMethodMap.get(field.name);
-            if(methodNode==null)throw new RuntimeException(
-                    String.format(
-                            "Cannot find init for %s.%s",
-                            classNode.name,
-                            field.name
-                    )
-            );
+            if (methodNode == null) {
+                if (localMap.isNull()) continue;
+
+                    throw new RuntimeException(
+                            String.format(
+                                    "Cannot find init for %s.%s",
+                                    classNode.name,
+                                    field.name
+                            )
+                    );
+            }
             InsnListSupplier sourceInsn = instructionProducer(methodNode);
             InsnList targetInsn = targetMethod.instructions;
             InitializeIn.Position pos = initializer.pos();
@@ -189,10 +196,6 @@ public class MoveInitializerPostCompilation implements PostCompilerTransformatio
         ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
         classNode.accept(writer);
         return writer.toByteArray();
-    }
-
-    private static @NotNull AnnotationArgumentMap findAnnotation(FieldNode field, Class<? extends Annotation> type) {
-        return findAnnotation(field.visibleAnnotations, field.invisibleAnnotations, type);
     }
 
     @AllArgsConstructor

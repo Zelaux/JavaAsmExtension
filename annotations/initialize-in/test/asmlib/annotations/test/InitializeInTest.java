@@ -87,6 +87,7 @@ public class InitializeInTest {
         assertEquals(10, NativeStaticMethod.x);
     }
 
+
     @InitializeIn("init")
     static class SimpleInit {
         public int x = 10;
